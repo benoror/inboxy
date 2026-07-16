@@ -38,6 +38,9 @@ npm install
 
 # Build with webpack to create dist/content.js
 npm run build
+
+# Rebuild automatically on every save (development)
+npm run watch
 ```
 
 The `dist` directory can then be loaded as an [unpacked extension](https://developer.chrome.com/extensions/getstarted).
