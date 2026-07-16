@@ -29,7 +29,7 @@ const MAX_MESSAGE_COUNT = 25;
 /**
  * Create a table row for a bundle, to be shown in the list of messages. 
  */
-function create(label, order, messages, hasUnread, toggleBundle, baseUrl) {
+function create(label, order, messages, hasUnread, toggleBundle, baseUrl, labelColors) {
     const displayedMessageCount = messages.length >= MAX_MESSAGE_COUNT 
         ? `${MAX_MESSAGE_COUNT}+` 
         : messages.length;
@@ -110,16 +110,24 @@ function create(label, order, messages, hasUnread, toggleBundle, baseUrl) {
     el.appendChild(DomUtils.htmlToElement(viewAllButtonHtml));
 
     el.addEventListener('click', e => {
-        if (!e.target.matches(`.${InboxyClasses.VIEW_ALL_LINK}`) && 
-            !e.target.matches('.view-all')) 
+        if (!e.target.matches(`.${InboxyClasses.VIEW_ALL_LINK}`) &&
+            !e.target.matches('.view-all'))
         {
             toggleBundle(label);
         }
-        
+
         // Don't propagate to handler for click-outside to close bundle
         e.stopPropagation();
     });
     el.style.order = order;
+
+    if (labelColors) {
+        el.classList.add(InboxyClasses.LABEL_COLORED);
+        el.style.setProperty('--inboxy-label-bg', labelColors.background);
+        if (labelColors.color) {
+            el.style.setProperty('--inboxy-label-fg', labelColors.color);
+        }
+    }
 
     return el;
 }

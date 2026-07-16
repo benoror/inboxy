@@ -49,6 +49,7 @@ const InboxyClasses = {
     MESSAGES_DARK_THEME: 'messages-dark-theme',
     MESSAGES_DEFAULT_THEME: 'messages-default-theme',
     INBOXY: 'inboxy',
+    LABEL_COLORED: 'label-colored',
     LAST: 'last',
     SHOW_PINNED_TOGGLE: 'show-pinned-toggle',
     VIEW_ALL_LINK: 'view-all-link',

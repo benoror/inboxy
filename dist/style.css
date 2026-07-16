@@ -106,6 +106,26 @@ html.inboxy.messages-dark-theme .bundle-row.zE.visible {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
 }
 
+/**
+ * Label-colored bundles (opt-in "Bundle colors" option).
+ *
+ * Colors come from the Gmail label's own chip, captured inline on the row as
+ * --inboxy-label-bg / --inboxy-label-fg, so bundles stay consistent with the
+ * current Gmail theme. Selectors include the .zA guard and theme/Simplify
+ * qualifiers so they outrank the themed unread/read background rules above.
+ */
+html.inboxy:not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7),
+html.inboxy.messages-default-theme:not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7),
+html.inboxy.messages-dark-theme:not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7) {
+    background-color: var(--inboxy-label-bg) !important;
+    color: var(--inboxy-label-fg, inherit) !important;
+}
+
+/* Keep an accent in the label color when the bundle is open */
+html.inboxy .bundle-row.label-colored.visible {
+    border-left: 4px solid var(--inboxy-label-bg);
+}
+
 html.inboxy .bundle-row.visible {
     flex-wrap: nowrap;
 }

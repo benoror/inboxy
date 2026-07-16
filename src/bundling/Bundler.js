@@ -50,9 +50,12 @@ class Bundler {
         this.messageSelectHandler = new MessageSelectHandler(bundledMail, selectiveBundling);
         this.inboxyStyler = new InboxyStyler(bundledMail);
         this.quickSelectHandler = new QuickSelectHandler();
-        chrome.storage.sync.get(['groupMessagesByDate'], ({ groupMessagesByDate = true }) => {
-            this.groupMessagesByDate = groupMessagesByDate;
-        });
+        chrome.storage.sync.get(
+            ['groupMessagesByDate', 'colorBundlesByLabel'],
+            ({ groupMessagesByDate = true, colorBundlesByLabel = false }) => {
+                this.groupMessagesByDate = groupMessagesByDate;
+                this.colorBundlesByLabel = colorBundlesByLabel;
+            });
     }
 
     /**
@@ -285,19 +288,37 @@ class Bundler {
     _drawBundleRow(bundle, order, tableBody, baseUrl) {
         const messages = bundle.getMessages();
         const hasUnreadMessages = messages.some(this._isUnreadMessage);
+        const labelColors = this.colorBundlesByLabel
+            ? this._findLabelColors(bundle.getLabel(), messages)
+            : null;
 
         const bundleRow = BundleRow.create(
-            bundle.getLabel(), 
-            order, 
+            bundle.getLabel(),
+            order,
             messages,
-            hasUnreadMessages, 
+            hasUnreadMessages,
             this.bundleToggler.toggleBundle,
-            baseUrl);
+            baseUrl,
+            labelColors);
         tableBody.appendChild(bundleRow);
 
         messages.forEach(m => m.classList.add(InboxyClasses.BUNDLED_MESSAGE));
 
         return bundleRow;
+    }
+
+    /**
+     * Find the Gmail label color for a bundle, by checking its messages until a
+     * colored label chip is found. Returns { background, color } or null.
+     */
+    _findLabelColors(label, messages) {
+        for (const message of messages) {
+            const colors = DomUtils.getLabelColors(message, label);
+            if (colors) {
+                return colors;
+            }
+        }
+        return null;
     }
 
     _isUnreadMessage(message) {
