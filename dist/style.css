@@ -121,9 +121,18 @@ html.inboxy.messages-dark-theme:not(.simplify):not(.simpl) .bundle-row.label-col
     color: var(--inboxy-label-fg, inherit) !important;
 }
 
-/* Keep an accent in the label color when the bundle is open */
+/*
+ * Left accent bar in the label's text color, which stays saturated even for
+ * pale/white label backgrounds. This keeps such bundles distinguishable from
+ * non-bundled threads (whose background is also white/near-white).
+ * Collapsed uses an inset shadow (no layout shift); open uses a border so it
+ * survives the box-shadow reset on visible bundle rows.
+ */
+html.inboxy .bundle-row.label-colored:not(.visible) {
+    box-shadow: inset 5px 0 0 0 var(--inboxy-label-fg, var(--inboxy-label-bg));
+}
 html.inboxy .bundle-row.label-colored.visible {
-    border-left: 4px solid var(--inboxy-label-bg);
+    border-left: 4px solid var(--inboxy-label-fg, var(--inboxy-label-bg));
 }
 
 html.inboxy .bundle-row.visible {
