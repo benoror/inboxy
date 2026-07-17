@@ -128,11 +128,13 @@ html.inboxy.messages-dark-theme:not(.simplify):not(.simpl) .bundle-row.label-col
  * Collapsed uses an inset shadow (no layout shift); open uses a border so it
  * survives the box-shadow reset on visible bundle rows.
  */
+/*
+ * Left accent bar in the label's text color, running the full height of the
+ * bundle. The same 5px inset shadow is used on the collapsed row, the open
+ * header, and the bundle area so they line up into one continuous vertical bar.
+ */
 html.inboxy .bundle-row.label-colored:not(.visible) {
     box-shadow: inset 5px 0 0 0 var(--inboxy-label-fg, var(--inboxy-label-bg));
-}
-html.inboxy .bundle-row.label-colored.visible {
-    border-left: 4px solid var(--inboxy-label-fg, var(--inboxy-label-bg));
 }
 
 /*
@@ -150,12 +152,14 @@ html.inboxy.messages-dark-theme .bundle-row.label-colored.zE.visible {
     background-color: var(--inboxy-label-bg) !important;
     color: var(--inboxy-label-fg, inherit) !important;
     text-shadow: none;
+    box-shadow: inset 5px 0 0 0 var(--inboxy-label-fg, var(--inboxy-label-bg)) !important;
 }
 
 html.inboxy .bundle-area.label-colored,
 html.inboxy.messages-default-theme .bundle-area.label-colored,
 html.inboxy.messages-dark-theme .bundle-area.label-colored {
     background: var(--inboxy-label-bg);
+    box-shadow: inset 5px 0 0 0 var(--inboxy-label-fg, var(--inboxy-label-bg));
 }
 
 html.inboxy .bundle-row.visible {
