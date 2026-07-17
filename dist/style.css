@@ -135,6 +135,29 @@ html.inboxy .bundle-row.label-colored.visible {
     border-left: 4px solid var(--inboxy-label-fg, var(--inboxy-label-bg));
 }
 
+/*
+ * Keep the label color on an open bundle: its header and the surrounding
+ * bundle area take the label background, framing the (white) message rows.
+ * The .label-colored class raises specificity above the themed visible/area
+ * backgrounds defined earlier.
+ */
+html.inboxy .bundle-row.label-colored.zA.yO.visible,
+html.inboxy .bundle-row.label-colored.zA.zE.visible,
+html.inboxy.messages-default-theme .bundle-row.label-colored.yO.visible,
+html.inboxy.messages-default-theme .bundle-row.label-colored.zE.visible,
+html.inboxy.messages-dark-theme .bundle-row.label-colored.yO.visible,
+html.inboxy.messages-dark-theme .bundle-row.label-colored.zE.visible {
+    background-color: var(--inboxy-label-bg) !important;
+    color: var(--inboxy-label-fg, inherit) !important;
+    text-shadow: none;
+}
+
+html.inboxy .bundle-area.label-colored,
+html.inboxy.messages-default-theme .bundle-area.label-colored,
+html.inboxy.messages-dark-theme .bundle-area.label-colored {
+    background: var(--inboxy-label-bg);
+}
+
 html.inboxy .bundle-row.visible {
     flex-wrap: nowrap;
 }
