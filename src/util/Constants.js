@@ -46,6 +46,8 @@ const InboxyClasses = {
     BUNDLE_ROW: 'bundle-row',
     BUNDLED_MESSAGE: 'bundled-message',
     DARK_THEME: 'dark-theme',
+    HIDE_BUNDLE_ARCHIVE: 'hide-bundle-archive',
+    HIDE_PINNED_TOGGLE: 'hide-pinned-toggle',
     MESSAGES_DARK_THEME: 'messages-dark-theme',
     MESSAGES_DEFAULT_THEME: 'messages-default-theme',
     INBOXY: 'inboxy',

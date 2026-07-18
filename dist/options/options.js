@@ -23,6 +23,8 @@ function saveOptions() {
     const groupMessagesByDate = document.getElementById('group-by-date-checkbox').checked;
     const colorBundlesByLabel = document.getElementById('color-bundles-checkbox').checked;
     const bundleColorStyle = document.querySelector('input[name="bundleColorStyle"]:checked').value;
+    const showPinnedToggle = document.getElementById('show-pinned-toggle-checkbox').checked;
+    const showBundleArchive = document.getElementById('show-bundle-archive-checkbox').checked;
 
     chrome.storage.sync.set({
         exclude: !!exclude,
@@ -30,6 +32,8 @@ function saveOptions() {
         groupMessagesByDate: !!groupMessagesByDate,
         colorBundlesByLabel: !!colorBundlesByLabel,
         bundleColorStyle: bundleColorStyle,
+        showPinnedToggle: !!showPinnedToggle,
+        showBundleArchive: !!showBundleArchive,
     }, function() {
         labelList.value = labels.join('\n');
 
@@ -48,6 +52,8 @@ function restoreOptions() {
         groupMessagesByDate: true,
         colorBundlesByLabel: false,
         bundleColorStyle: 'background',
+        showPinnedToggle: false,
+        showBundleArchive: false,
     }, function(items) {
         const id = items.exclude ? 'exclude-radio' : 'include-radio';
         document.getElementById(id).checked = true;
@@ -65,6 +71,9 @@ function restoreOptions() {
             ? 'color-style-accent'
             : 'color-style-background';
         document.getElementById(styleId).checked = true;
+
+        document.getElementById('show-pinned-toggle-checkbox').checked = items.showPinnedToggle;
+        document.getElementById('show-bundle-archive-checkbox').checked = items.showBundleArchive;
 
     });
 }

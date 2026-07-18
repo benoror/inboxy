@@ -286,6 +286,18 @@ html.inboxy .bundle-row .flex-grow {
     flex-grow: 1;
 }
 
+/*
+ * Optional features, hidden by default and enabled from the options page:
+ * the pinned-messages toggle and the bulk-archive button (on both bundle rows
+ * and date dividers). !important overrides the hover/visible reveal rules.
+ */
+html.inboxy.hide-pinned-toggle .pinned-toggle {
+    display: none !important;
+}
+html.inboxy.hide-bundle-archive .archive-bundle {
+    display: none !important;
+}
+
 html.inboxy .bundle-row .archive-bundle {
     background-image: url('chrome-extension://__MSG_@@extension_id__/assets/check-all.svg');
     background-size: 24px;

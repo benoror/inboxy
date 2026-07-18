@@ -50,6 +50,15 @@ const html = document.querySelector('html');
 if (html) {
     logDebugMessage('Applying styles');
     html.classList.add(InboxyClasses.INBOXY);
+
+    // The pinned-messages toggle and bulk-archive button are hidden by default;
+    // opt in to them from the options page.
+    chrome.storage.sync.get(
+        { showPinnedToggle: false, showBundleArchive: false },
+        ({ showPinnedToggle, showBundleArchive }) => {
+            html.classList.toggle(InboxyClasses.HIDE_PINNED_TOGGLE, !showPinnedToggle);
+            html.classList.toggle(InboxyClasses.HIDE_BUNDLE_ARCHIVE, !showBundleArchive);
+        });
 }
 
 const RETRY_TIMEOUT_MS = 50;

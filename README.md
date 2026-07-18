@@ -28,6 +28,8 @@ and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/inboxy-inbox-bundle
 * Optionally color bundles to match their Gmail label color — either a subtle
   background tint or just the left accent bar and text, both theme-aware
   (enable in Options)
+* The pinned-messages toggle and per-bundle archive-all button are optional
+  (hidden by default; enable them under Options → Features)
 
 For more info, visit https://www.inboxymail.com.
 
