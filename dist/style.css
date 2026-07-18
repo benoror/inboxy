@@ -110,56 +110,59 @@ html.inboxy.messages-dark-theme .bundle-row.zE.visible {
  * Label-colored bundles (opt-in "Bundle colors" option).
  *
  * Colors come from the Gmail label's own chip, captured inline on the row as
- * --inboxy-label-bg / --inboxy-label-fg, so bundles stay consistent with the
- * current Gmail theme. Selectors include the .zA guard and theme/Simplify
- * qualifiers so they outrank the themed unread/read background rules above.
+ * --inboxy-label-bg / --inboxy-label-fg / --inboxy-label-accent, so bundles
+ * stay consistent with the current Gmail theme.
+ *
+ * Two styles, chosen in Options:
+ *   - Fill (default): backgrounds take the label color.
+ *   - Accent (html.label-color-accent): backgrounds stay neutral; only the
+ *     left bar and text are colored (with the contrast-picked accent color).
+ * The left accent bar is shared by both styles and runs the full height of the
+ * bundle: the same 5px inset shadow on the collapsed row, the open header, and
+ * the bundle area line up into one continuous vertical bar.
  */
-html.inboxy:not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7),
-html.inboxy.messages-default-theme:not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7),
-html.inboxy.messages-dark-theme:not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7) {
-    background-color: var(--inboxy-label-bg) !important;
-    color: var(--inboxy-label-fg, inherit) !important;
-}
 
-/*
- * Left accent bar in the label's text color, which stays saturated even for
- * pale/white label backgrounds. This keeps such bundles distinguishable from
- * non-bundled threads (whose background is also white/near-white).
- * Collapsed uses an inset shadow (no layout shift); open uses a border so it
- * survives the box-shadow reset on visible bundle rows.
- */
-/*
- * Left accent bar in the label's text color, running the full height of the
- * bundle. The same 5px inset shadow is used on the collapsed row, the open
- * header, and the bundle area so they line up into one continuous vertical bar.
- */
+/* -- Left accent bar (both styles; accent color survives pale/white labels) -- */
 html.inboxy .bundle-row.label-colored:not(.visible) {
-    box-shadow: inset 5px 0 0 0 var(--inboxy-label-fg, var(--inboxy-label-bg));
+    box-shadow: inset 5px 0 0 0 var(--inboxy-label-accent, var(--inboxy-label-fg, var(--inboxy-label-bg)));
+}
+html.inboxy .bundle-row.label-colored.zA.yO.visible,
+html.inboxy .bundle-row.label-colored.zA.zE.visible {
+    box-shadow: inset 5px 0 0 0 var(--inboxy-label-accent, var(--inboxy-label-fg, var(--inboxy-label-bg))) !important;
+    text-shadow: none;
+}
+html.inboxy .bundle-area.label-colored {
+    box-shadow: inset 5px 0 0 0 var(--inboxy-label-accent, var(--inboxy-label-fg, var(--inboxy-label-bg)));
 }
 
-/*
- * Keep the label color on an open bundle: its header and the surrounding
- * bundle area take the label background, framing the (white) message rows.
- * The .label-colored class raises specificity above the themed visible/area
- * backgrounds defined earlier.
- */
-html.inboxy .bundle-row.label-colored.zA.yO.visible,
-html.inboxy .bundle-row.label-colored.zA.zE.visible,
-html.inboxy.messages-default-theme .bundle-row.label-colored.yO.visible,
-html.inboxy.messages-default-theme .bundle-row.label-colored.zE.visible,
-html.inboxy.messages-dark-theme .bundle-row.label-colored.yO.visible,
-html.inboxy.messages-dark-theme .bundle-row.label-colored.zE.visible {
+/* -- Fill style only: paint the backgrounds with the label color -- */
+/* The .zA guard and theme/Simplify qualifiers outrank the themed row rules. */
+html.inboxy:not(.label-color-accent):not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7),
+html.inboxy.messages-default-theme:not(.label-color-accent):not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7),
+html.inboxy.messages-dark-theme:not(.label-color-accent):not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7) {
     background-color: var(--inboxy-label-bg) !important;
     color: var(--inboxy-label-fg, inherit) !important;
-    text-shadow: none;
-    box-shadow: inset 5px 0 0 0 var(--inboxy-label-fg, var(--inboxy-label-bg)) !important;
+}
+html.inboxy:not(.label-color-accent) .bundle-row.label-colored.zA.yO.visible,
+html.inboxy:not(.label-color-accent) .bundle-row.label-colored.zA.zE.visible,
+html.inboxy.messages-default-theme:not(.label-color-accent) .bundle-row.label-colored.yO.visible,
+html.inboxy.messages-default-theme:not(.label-color-accent) .bundle-row.label-colored.zE.visible,
+html.inboxy.messages-dark-theme:not(.label-color-accent) .bundle-row.label-colored.yO.visible,
+html.inboxy.messages-dark-theme:not(.label-color-accent) .bundle-row.label-colored.zE.visible {
+    background-color: var(--inboxy-label-bg) !important;
+    color: var(--inboxy-label-fg, inherit) !important;
+}
+html.inboxy:not(.label-color-accent) .bundle-area.label-colored,
+html.inboxy.messages-default-theme:not(.label-color-accent) .bundle-area.label-colored,
+html.inboxy.messages-dark-theme:not(.label-color-accent) .bundle-area.label-colored {
+    background: var(--inboxy-label-bg);
 }
 
-html.inboxy .bundle-area.label-colored,
-html.inboxy.messages-default-theme .bundle-area.label-colored,
-html.inboxy.messages-dark-theme .bundle-area.label-colored {
-    background: var(--inboxy-label-bg);
-    box-shadow: inset 5px 0 0 0 var(--inboxy-label-fg, var(--inboxy-label-bg));
+/* -- Accent style only: color the bundle title, count, senders and date -- */
+html.inboxy.label-color-accent .bundle-row.label-colored .bundle-and-count,
+html.inboxy.label-color-accent .bundle-row.label-colored .bundle-senders,
+html.inboxy.label-color-accent .bundle-row.label-colored .bundle-date {
+    color: var(--inboxy-label-accent, var(--inboxy-label-fg)) !important;
 }
 
 html.inboxy .bundle-row.visible {

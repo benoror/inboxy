@@ -127,6 +127,9 @@ function create(label, order, messages, hasUnread, toggleBundle, baseUrl, labelC
         if (labelColors.color) {
             el.style.setProperty('--inboxy-label-fg', labelColors.color);
         }
+        if (labelColors.accent) {
+            el.style.setProperty('--inboxy-label-accent', labelColors.accent);
+        }
     }
 
     return el;

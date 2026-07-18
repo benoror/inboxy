@@ -22,12 +22,14 @@ function saveOptions() {
     const labels = labelList.value.split(/[\n]+/).map(s => s.trim()).filter(s => !!s);
     const groupMessagesByDate = document.getElementById('group-by-date-checkbox').checked;
     const colorBundlesByLabel = document.getElementById('color-bundles-checkbox').checked;
+    const bundleColorStyle = document.querySelector('input[name="bundleColorStyle"]:checked').value;
 
     chrome.storage.sync.set({
         exclude: !!exclude,
         labels: labels,
         groupMessagesByDate: !!groupMessagesByDate,
         colorBundlesByLabel: !!colorBundlesByLabel,
+        bundleColorStyle: bundleColorStyle,
     }, function() {
         labelList.value = labels.join('\n');
 
@@ -45,6 +47,7 @@ function restoreOptions() {
         labels: [],
         groupMessagesByDate: true,
         colorBundlesByLabel: false,
+        bundleColorStyle: 'background',
     }, function(items) {
         const id = items.exclude ? 'exclude-radio' : 'include-radio';
         document.getElementById(id).checked = true;
@@ -57,6 +60,11 @@ function restoreOptions() {
 
         document.getElementById('group-by-date-checkbox').checked = items.groupMessagesByDate;
         document.getElementById('color-bundles-checkbox').checked = items.colorBundlesByLabel;
+
+        const styleId = items.bundleColorStyle === 'accent'
+            ? 'color-style-accent'
+            : 'color-style-background';
+        document.getElementById(styleId).checked = true;
 
     });
 }

@@ -138,11 +138,14 @@ class BundleToggler {
                 '--inboxy-label-bg', bundleRow.style.getPropertyValue('--inboxy-label-bg'));
             bundleArea.style.setProperty(
                 '--inboxy-label-fg', bundleRow.style.getPropertyValue('--inboxy-label-fg'));
+            bundleArea.style.setProperty(
+                '--inboxy-label-accent', bundleRow.style.getPropertyValue('--inboxy-label-accent'));
         }
         else {
             bundleArea.classList.remove(InboxyClasses.LABEL_COLORED);
             bundleArea.style.removeProperty('--inboxy-label-bg');
             bundleArea.style.removeProperty('--inboxy-label-fg');
+            bundleArea.style.removeProperty('--inboxy-label-accent');
         }
     }
 

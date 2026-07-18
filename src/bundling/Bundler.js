@@ -51,10 +51,17 @@ class Bundler {
         this.inboxyStyler = new InboxyStyler(bundledMail);
         this.quickSelectHandler = new QuickSelectHandler();
         chrome.storage.sync.get(
-            ['groupMessagesByDate', 'colorBundlesByLabel'],
-            ({ groupMessagesByDate = true, colorBundlesByLabel = false }) => {
+            ['groupMessagesByDate', 'colorBundlesByLabel', 'bundleColorStyle'],
+            ({
+                groupMessagesByDate = true,
+                colorBundlesByLabel = false,
+                bundleColorStyle = 'background',
+            }) => {
                 this.groupMessagesByDate = groupMessagesByDate;
                 this.colorBundlesByLabel = colorBundlesByLabel;
+                document.querySelector('html').classList.toggle(
+                    InboxyClasses.LABEL_COLOR_ACCENT,
+                    colorBundlesByLabel && bundleColorStyle === 'accent');
             });
     }
 
@@ -315,6 +322,9 @@ class Bundler {
         for (const message of messages) {
             const colors = DomUtils.getLabelColors(message, label);
             if (colors) {
+                const isDarkTheme = document.querySelector('html')
+                    .classList.contains(InboxyClasses.MESSAGES_DARK_THEME);
+                colors.accent = DomUtils.pickAccentColor(colors, isDarkTheme);
                 return colors;
             }
         }

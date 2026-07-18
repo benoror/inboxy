@@ -74,6 +74,32 @@ test('getLabelColors - returns null when the label is not present', () => {
     expect(DomUtils.getLabelColors(message, 'School')).toBeNull();
 });
 
+//
+// pickAccentColor
+//
+
+test('pickAccentColor - light theme picks the darker of the two colors', () => {
+    // Light-green background with dark-green text -> dark green reads on white
+    const colors = { background: 'rgb(66, 214, 146)', color: 'rgb(9, 66, 40)' };
+    expect(DomUtils.pickAccentColor(colors, false)).toBe('rgb(9, 66, 40)');
+});
+
+test('pickAccentColor - light theme avoids a white label text color', () => {
+    // Blue background with white text -> white would vanish, so pick the blue
+    const colors = { background: 'rgb(74, 134, 232)', color: 'rgb(255, 255, 255)' };
+    expect(DomUtils.pickAccentColor(colors, false)).toBe('rgb(74, 134, 232)');
+});
+
+test('pickAccentColor - dark theme picks the lighter of the two colors', () => {
+    const colors = { background: 'rgb(66, 214, 146)', color: 'rgb(9, 66, 40)' };
+    expect(DomUtils.pickAccentColor(colors, true)).toBe('rgb(66, 214, 146)');
+});
+
+test('pickAccentColor - falls back to background when there is no text color', () => {
+    expect(DomUtils.pickAccentColor({ background: 'rgb(1, 2, 3)', color: null }, false))
+        .toBe('rgb(1, 2, 3)');
+});
+
 test('getLabelColors - matches the correct label among several', () => {
     const message = document.createElement('tr');
     message.appendChild(

@@ -71,6 +71,32 @@ const DomUtils = {
         return background ? { background, color } : null;
     },
 
+    /**
+     * Pick the label color that reads best as text/accent on a neutral row:
+     * the darker of the label's two colors for a light theme, the lighter for a
+     * dark theme. This keeps the label's hue while staying legible (a label's
+     * own text color can be white, which would vanish on a white row).
+     */
+    pickAccentColor: function(colors, isDarkTheme) {
+        const candidates = [colors.background, colors.color].filter(Boolean);
+        if (!candidates.length) {
+            return null;
+        }
+
+        const brightness = c => {
+            const parts = (c.match(/\d+/g) || []).map(Number);
+            if (parts.length < 3) {
+                return 128;
+            }
+            const [r, g, b] = parts;
+            return (0.299 * r) + (0.587 * g) + (0.114 * b);
+        };
+
+        return candidates.sort((a, b) => isDarkTheme
+            ? brightness(b) - brightness(a)
+            : brightness(a) - brightness(b))[0];
+    },
+
     htmlToElement: function(html) {
         var template = document.createElement('template');
         html = html.trim();

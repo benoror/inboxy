@@ -247,7 +247,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
                     <input type="checkbox" id="color-bundles-checkbox">
                     <span class="slider"></span>
                 </label>
-                <span class="switch-label">Color bundle backgrounds to match their Gmail label color</span>
+                <span class="switch-label">Color bundles to match their Gmail label color</span>
+            </div>
+
+            <div class="list-type-options">
+                <div class="list-type">
+                    <input type="radio" name="bundleColorStyle" value="background" id="color-style-background">
+                    <label for="color-style-background">Fill the bundle background with the label color</label>
+                </div>
+                <div class="list-type">
+                    <input type="radio" name="bundleColorStyle" value="accent" id="color-style-accent">
+                    <label for="color-style-accent">Only color the left accent bar and text</label>
+                </div>
             </div>
 
             <button id="save-button" class="save-button">
