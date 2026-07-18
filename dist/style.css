@@ -89,9 +89,9 @@ html.inboxy .bundle-row.zA.zE.visible {
     box-shadow: none !important;
     font-weight: bold;
     background-color: rgba(255, 255, 255, 0.35) !important;
-    padding-top: 32px !important;
-    padding-bottom: 18px !important;
-    margin-top: 24px;
+    padding-top: 14px !important;
+    padding-bottom: 12px !important;
+    margin-top: 8px;
 }
 
 html.inboxy.messages-default-theme .bundle-row.yO.visible,
@@ -371,7 +371,7 @@ html.inboxy .bundle-area {
     background-color: rgba(255, 255, 255, 0.35);
     cursor: pointer;
     display: none;
-    padding-bottom: 48px;
+    padding-bottom: 10px;
     position: absolute;
     width: 100%;
     z-index: -2;
@@ -389,7 +389,7 @@ html.inboxy.messages-dark-theme .bundle-area {
  * Bottom of open bundle area
  */
 html.inboxy .bundled-message.visible.last {
-    margin-bottom: 72px;
+    margin-bottom: 16px;
 }
 
 /** 
