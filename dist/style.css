@@ -113,14 +113,28 @@ html.inboxy.messages-dark-theme .bundle-row.zE.visible {
  * --inboxy-label-bg / --inboxy-label-fg / --inboxy-label-accent, so bundles
  * stay consistent with the current Gmail theme.
  *
- * Two styles, chosen in Options:
- *   - Fill (default): backgrounds take the label color.
- *   - Accent (html.label-color-accent): backgrounds stay neutral; only the
- *     left bar and text are colored (with the contrast-picked accent color).
- * The left accent bar is shared by both styles and runs the full height of the
- * bundle: the same 5px inset shadow on the collapsed row, the open header, and
- * the bundle area line up into one continuous vertical bar.
+ * Both styles color the left accent bar + text with the contrast-picked accent
+ * color (which stays readable even when a label's own text color is white).
+ * They differ only in the background, chosen in Options:
+ *   - Fill (default): a subtle tint of the label color, blended toward the
+ *     theme's base so it's gentle in both light and dark themes.
+ *   - Accent (html.label-color-accent): backgrounds stay neutral.
+ * The left accent bar runs the full height of the bundle: the same 5px inset
+ * shadow on the collapsed row, the open header, and the bundle area line up
+ * into one continuous vertical bar.
  */
+
+/* Base to blend the label color toward, per theme (light by default). */
+html.inboxy {
+    --inboxy-fill-base: #ffffff;
+}
+html.inboxy.messages-dark-theme {
+    --inboxy-fill-base: #202124;
+}
+html.inboxy .bundle-row.label-colored,
+html.inboxy .bundle-area.label-colored {
+    --inboxy-label-tint: color-mix(in srgb, var(--inboxy-label-bg) 20%, var(--inboxy-fill-base));
+}
 
 /* -- Left accent bar (both styles; accent color survives pale/white labels) -- */
 html.inboxy .bundle-row.label-colored:not(.visible) {
@@ -135,13 +149,19 @@ html.inboxy .bundle-area.label-colored {
     box-shadow: inset 5px 0 0 0 var(--inboxy-label-accent, var(--inboxy-label-fg, var(--inboxy-label-bg)));
 }
 
-/* -- Fill style only: paint the backgrounds with the label color -- */
+/* -- Text: color the bundle title, count, senders and date (both styles) -- */
+html.inboxy .bundle-row.label-colored .bundle-and-count,
+html.inboxy .bundle-row.label-colored .bundle-senders,
+html.inboxy .bundle-row.label-colored .bundle-date {
+    color: var(--inboxy-label-accent, var(--inboxy-label-fg)) !important;
+}
+
+/* -- Fill style only: a subtle label-color tint behind the bundle -- */
 /* The .zA guard and theme/Simplify qualifiers outrank the themed row rules. */
 html.inboxy:not(.label-color-accent):not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7),
 html.inboxy.messages-default-theme:not(.label-color-accent):not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7),
 html.inboxy.messages-dark-theme:not(.label-color-accent):not(.simplify):not(.simpl) .bundle-row.label-colored.zA:not(.visible):not(.x7) {
-    background-color: var(--inboxy-label-bg) !important;
-    color: var(--inboxy-label-fg, inherit) !important;
+    background-color: var(--inboxy-label-tint) !important;
 }
 html.inboxy:not(.label-color-accent) .bundle-row.label-colored.zA.yO.visible,
 html.inboxy:not(.label-color-accent) .bundle-row.label-colored.zA.zE.visible,
@@ -149,20 +169,12 @@ html.inboxy.messages-default-theme:not(.label-color-accent) .bundle-row.label-co
 html.inboxy.messages-default-theme:not(.label-color-accent) .bundle-row.label-colored.zE.visible,
 html.inboxy.messages-dark-theme:not(.label-color-accent) .bundle-row.label-colored.yO.visible,
 html.inboxy.messages-dark-theme:not(.label-color-accent) .bundle-row.label-colored.zE.visible {
-    background-color: var(--inboxy-label-bg) !important;
-    color: var(--inboxy-label-fg, inherit) !important;
+    background-color: var(--inboxy-label-tint) !important;
 }
 html.inboxy:not(.label-color-accent) .bundle-area.label-colored,
 html.inboxy.messages-default-theme:not(.label-color-accent) .bundle-area.label-colored,
 html.inboxy.messages-dark-theme:not(.label-color-accent) .bundle-area.label-colored {
-    background: var(--inboxy-label-bg);
-}
-
-/* -- Accent style only: color the bundle title, count, senders and date -- */
-html.inboxy.label-color-accent .bundle-row.label-colored .bundle-and-count,
-html.inboxy.label-color-accent .bundle-row.label-colored .bundle-senders,
-html.inboxy.label-color-accent .bundle-row.label-colored .bundle-date {
-    color: var(--inboxy-label-accent, var(--inboxy-label-fg)) !important;
+    background: var(--inboxy-label-tint);
 }
 
 html.inboxy .bundle-row.visible {

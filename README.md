@@ -25,8 +25,9 @@ and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/inboxy-inbox-bundle
 * Star a message to pin it outside of its bundle
 * Intuitive date headings
 * Supports light and dark themes
-* Optionally color bundles to match their Gmail label color — either filling the
-  background or just the left accent bar and text (enable in Options)
+* Optionally color bundles to match their Gmail label color — either a subtle
+  background tint or just the left accent bar and text, both theme-aware
+  (enable in Options)
 
 For more info, visit https://www.inboxymail.com.
 
