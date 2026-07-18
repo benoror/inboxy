@@ -31,10 +31,11 @@ import {
 import { 
     GmailClasses,
     InboxyClasses,
-    Selectors, 
+    Selectors,
     TableBodySelectors,
-    ORDER_INCREMENT, 
+    ORDER_INCREMENT,
     Element,
+    LABEL_SET_SEPARATOR,
 } from '../util/Constants';
 import DomUtils from '../util/DomUtils';
 
@@ -319,8 +320,11 @@ class Bundler {
      * colored label chip is found. Returns { background, color } or null.
      */
     _findLabelColors(label, messages) {
+        // For a combined-label bundle the key is several labels joined; color by
+        // the first one. Single-label keys split to themselves (no separator).
+        const firstLabel = label.split(LABEL_SET_SEPARATOR)[0];
         for (const message of messages) {
-            const colors = DomUtils.getLabelColors(message, label);
+            const colors = DomUtils.getLabelColors(message, firstLabel);
             if (colors) {
                 const isDarkTheme = document.querySelector('html')
                     .classList.contains(InboxyClasses.MESSAGES_DARK_THEME);

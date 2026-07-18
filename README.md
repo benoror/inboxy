@@ -21,6 +21,8 @@ and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/inboxy-inbox-bundle
 ## Features
 
 * Messages with the same label are bundled together in your inbox
+* Optionally bundle by the whole *set* of labels, so threads sharing labels
+  A + B form their own bundle, colored by the first label (enable in Options)
 * Archive all bundled messages on the current page quickly
 * Star a message to pin it outside of its bundle
 * Intuitive date headings

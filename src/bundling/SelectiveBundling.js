@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import DomUtils from '../util/DomUtils';
+import { LABEL_SET_SEPARATOR } from '../util/Constants';
 
 /**
  * Identifies the labels that have bundling enabled, according to the user's options.
@@ -23,21 +24,32 @@ import DomUtils from '../util/DomUtils';
 class SelectiveBundling {
     constructor() {
         const self = this;
-        chrome.storage.sync.get(['exclude', 'labels'], ({ exclude = true, labels = [] }) => {
-            self.exclude = exclude;
-            self.labels = new Set(labels.map(s => s.toLowerCase()));
-        });
+        chrome.storage.sync.get(
+            ['exclude', 'labels', 'combineLabels'],
+            ({ exclude = true, labels = [], combineLabels = false }) => {
+                self.exclude = exclude;
+                self.labels = new Set(labels.map(s => s.toLowerCase()));
+                self.combineLabels = combineLabels;
+            });
     }
 
+    /**
+     * Returns the bundle key(s) a message belongs to. Normally this is the list
+     * of its bundling-enabled labels (one bundle per label). When combineLabels
+     * is on, the whole set of labels is joined into a single key, so a distinct
+     * combination of labels forms its own bundle.
+     */
     findRelevantLabels(message) {
         const messageLabels = DomUtils.getLabelStrings(message);
 
-        if (this.exclude) {
-            return messageLabels.filter(l => !this.labels.has(l.toLowerCase()));
+        const relevant = this.exclude
+            ? messageLabels.filter(l => !this.labels.has(l.toLowerCase()))
+            : messageLabels.filter(l => this.labels.has(l.toLowerCase()));
+
+        if (this.combineLabels) {
+            return relevant.length ? [relevant.join(LABEL_SET_SEPARATOR)] : [];
         }
-        else {
-            return messageLabels.filter(l => this.labels.has(l.toLowerCase()));
-        }
+        return relevant;
     }
 }
 

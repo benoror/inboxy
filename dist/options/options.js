@@ -21,6 +21,7 @@ function saveOptions() {
     const labelList = document.getElementById('label-list');
     const labels = labelList.value.split(/[\n]+/).map(s => s.trim()).filter(s => !!s);
     const groupMessagesByDate = document.getElementById('group-by-date-checkbox').checked;
+    const combineLabels = document.getElementById('combine-labels-checkbox').checked;
     const colorBundlesByLabel = document.getElementById('color-bundles-checkbox').checked;
     const bundleColorStyle = document.querySelector('input[name="bundleColorStyle"]:checked').value;
     const showPinnedToggle = document.getElementById('show-pinned-toggle-checkbox').checked;
@@ -30,6 +31,7 @@ function saveOptions() {
         exclude: !!exclude,
         labels: labels,
         groupMessagesByDate: !!groupMessagesByDate,
+        combineLabels: !!combineLabels,
         colorBundlesByLabel: !!colorBundlesByLabel,
         bundleColorStyle: bundleColorStyle,
         showPinnedToggle: !!showPinnedToggle,
@@ -50,6 +52,7 @@ function restoreOptions() {
         exclude: true,
         labels: [],
         groupMessagesByDate: true,
+        combineLabels: false,
         colorBundlesByLabel: false,
         bundleColorStyle: 'background',
         showPinnedToggle: false,
@@ -65,6 +68,7 @@ function restoreOptions() {
         }
 
         document.getElementById('group-by-date-checkbox').checked = items.groupMessagesByDate;
+        document.getElementById('combine-labels-checkbox').checked = items.combineLabels;
         document.getElementById('color-bundles-checkbox').checked = items.colorBundlesByLabel;
 
         const styleId = items.bundleColorStyle === 'accent'

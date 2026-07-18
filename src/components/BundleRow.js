@@ -18,10 +18,11 @@ import BulkArchiveButton from './BulkArchiveButton';
 
 import MessagePageUtils from '../util/MessagePageUtils';
 import DomUtils from '../util/DomUtils';
-import { 
-    GmailClasses, 
+import {
+    GmailClasses,
     InboxyClasses,
     Selectors,
+    LABEL_SET_SEPARATOR,
 } from '../util/Constants';
 
 const MAX_MESSAGE_COUNT = 25;
@@ -30,10 +31,15 @@ const MAX_MESSAGE_COUNT = 25;
  * Create a table row for a bundle, to be shown in the list of messages. 
  */
 function create(label, order, messages, hasUnread, toggleBundle, baseUrl, labelColors) {
-    const displayedMessageCount = messages.length >= MAX_MESSAGE_COUNT 
-        ? `${MAX_MESSAGE_COUNT}+` 
+    const displayedMessageCount = messages.length >= MAX_MESSAGE_COUNT
+        ? `${MAX_MESSAGE_COUNT}+`
         : messages.length;
     const unreadClass = hasUnread ? GmailClasses.UNREAD : GmailClasses.READ;
+
+    // A combined-label bundle's key is several labels joined; show them as
+    // "A + B". Single-label keys split to themselves (no separator present).
+    const labels = label.split(LABEL_SET_SEPARATOR);
+    const displayLabel = labels.join(' + ');
 
     let spacerClass = '';
     if (document.querySelector(Selectors.IMPORTANCE_MARKER)) {
@@ -61,7 +67,7 @@ function create(label, order, messages, hasUnread, toggleBundle, baseUrl, labelC
             <td class="spacer ${GmailClasses.CELL} ${spacerClass}"></td>
             <td class="${GmailClasses.CELL} yX">
                 <div class="bundle-and-count">
-                    <span>${label}</span>
+                    <span>${displayLabel}</span>
                     <span class="bundle-count">(${displayedMessageCount})</span>
                 </div>
             </td>
@@ -78,11 +84,13 @@ function create(label, order, messages, hasUnread, toggleBundle, baseUrl, labelC
     const bulkArchiveTd = DomUtils.htmlToElement(`<td class="${GmailClasses.CELL}"></td>`);
     bulkArchiveTd.appendChild(bulkArchiveButton);
 
-    const labelUrl = label
-        .split(' ').join('-')
-        .split('/').join('%2F')
-        .split('&').join('-');
-    const url = `${baseUrl}#search/label%3AInbox+label%3A${labelUrl}`;
+    const labelQuery = labels
+        .map(l => 'label%3A' + l
+            .split(' ').join('-')
+            .split('/').join('%2F')
+            .split('&').join('-'))
+        .join('+');
+    const url = `${baseUrl}#search/label%3AInbox+${labelQuery}`;
     const viewAllButtonHtml = `
         <td class="${GmailClasses.CELL}">
             <a 
