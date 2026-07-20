@@ -18,6 +18,7 @@ import BulkArchiveButton from './BulkArchiveButton';
 
 import MessagePageUtils from '../util/MessagePageUtils';
 import DomUtils from '../util/DomUtils';
+import { formatLabelSetTitle } from '../util/LabelSet';
 import {
     GmailClasses,
     InboxyClasses,
@@ -36,10 +37,11 @@ function create(label, order, messages, hasUnread, toggleBundle, baseUrl, labelC
         : messages.length;
     const unreadClass = hasUnread ? GmailClasses.UNREAD : GmailClasses.READ;
 
-    // A combined-label bundle's key is several labels joined; show them as
-    // "A + B". Single-label keys split to themselves (no separator present).
+    // A combined-label bundle's key is several labels joined; present them
+    // compactly (factoring any shared parent path). Single-label keys split to
+    // themselves (no separator present).
     const labels = label.split(LABEL_SET_SEPARATOR);
-    const displayLabel = labels.join(' + ');
+    const displayLabel = formatLabelSetTitle(labels);
 
     let spacerClass = '';
     if (document.querySelector(Selectors.IMPORTANCE_MARKER)) {
