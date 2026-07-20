@@ -189,6 +189,10 @@ function _isDateDividerSupported(sampleDateString) {
 }
 
 function _parseDate(dateString) {
+    if (!dateString) {
+        return null;
+    }
+
     // Assumes the date string is formatted like 'Sat, Feb 25, 2023, 7:26 AM'    
     const i = dateString.indexOf(', ');
     if (i >= 0) {
@@ -217,13 +221,19 @@ function _convertDateStringToDate(dateString) {
  * if any, or null otherwise. 
  */
 function _shouldInsertDateDivider(prevMessageNode, currMessageNode, dateDividers) {
+    const currDate = _extractMessageDate(currMessageNode);
+    if (currDate == null) {
+        // Can't determine this message's date (e.g. no date cell); keep it in
+        // the current section rather than starting a new one.
+        return null;
+    }
+
+    const prevDate = prevMessageNode
+        ? _extractMessageDate(prevMessageNode)
+        : null;
+
     for (let i = dateDividers.length - 1; i >= 0; i--) {
         const dividerDate = dateDividers[i].endDate;
-        const prevDate = prevMessageNode 
-            ? _extractMessageDate(prevMessageNode) 
-            : null;
-        const currDate = _extractMessageDate(currMessageNode);
-
         if ((prevDate == null || prevDate >= dividerDate) && dividerDate > currDate) {
             return dateDividers[i];
         }

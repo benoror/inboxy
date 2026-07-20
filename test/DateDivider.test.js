@@ -176,4 +176,27 @@ test('invalid sample date format', () => {
     testWithDateDividers(rows, rows, 'invalidSampleDate');
 });
 
+// A row with no date cell (extractDate returns null) must not crash and should
+// stay in the current section rather than starting a new one.
+function createDatelessRow(id) {
+    return {
+        element: DomUtils.htmlToElement('<tr><td class="xW"></td></tr>'),
+        type: Element.UNBUNDLED_MESSAGE,
+        id,
+    };
+}
+
+test('message with no date cell does not crash and stays in the current section', () => {
+    testWithDateDividers([
+            createMockRow(1, TODAY),
+            createDatelessRow(2)
+        ],
+        [
+            createDividerRow(0),
+            createMockRow(1, TODAY),
+            createDatelessRow(2)
+        ]
+    );
+});
+
 
