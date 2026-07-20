@@ -26,7 +26,7 @@ class SelectiveBundling {
         const self = this;
         chrome.storage.sync.get(
             ['exclude', 'labels', 'combineLabels'],
-            ({ exclude = true, labels = [], combineLabels = false }) => {
+            ({ exclude = true, labels = [], combineLabels = true }) => {
                 self.exclude = exclude;
                 self.labels = new Set(labels.map(s => s.toLowerCase()));
                 self.combineLabels = combineLabels;

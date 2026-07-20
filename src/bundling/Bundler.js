@@ -55,7 +55,7 @@ class Bundler {
             ['groupMessagesByDate', 'colorBundlesByLabel', 'bundleColorStyle'],
             ({
                 groupMessagesByDate = true,
-                colorBundlesByLabel = false,
+                colorBundlesByLabel = true,
                 bundleColorStyle = 'background',
             }) => {
                 this.groupMessagesByDate = groupMessagesByDate;
