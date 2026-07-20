@@ -57,6 +57,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
                             </a>
                         </li>
                         <li>
+                            <a href="#bundles-and-colors">
+                                Bundles &amp; colors
+                            </a>
+                        </li>
+                        <li>
                             <a href="#pinning-messages">
                                 Pinning messages
                             </a>
@@ -146,10 +151,42 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             </section>
 
             <section>
+                <h2 id="bundles-and-colors">Bundles &amp; colors</h2>
+                <p>
+                    A few options (under <a href="#">Options</a>) control how bundles are grouped
+                    and colored:
+                </p>
+                <ul class="bulleted-list">
+                    <li>
+                        <b>Combine labels.</b> Instead of one bundle per label, each distinct
+                        <i>set</i> of labels forms its own bundle &mdash; so threads labeled
+                        A&nbsp;+&nbsp;B are grouped separately from those labeled just A. The bundle
+                        title factors out any shared parent (e.g. <i>IH/AI&nbsp;+&nbsp;Bender</i>).
+                    </li>
+                    <li>
+                        <b>Bundle colors.</b> Tint each bundle to match its Gmail label color, either
+                        by filling the row background with a subtle tint or by coloring just the left
+                        accent bar and text. Works in both light and dark themes.
+                    </li>
+                    <li>
+                        <b>Stylus theme-matching.</b> If you theme Gmail with a
+                        <a href="https://add0n.com/stylus.html" target="_blank">Stylus</a> userstyle,
+                        enable <a href="https://userstyles.catppuccin.com/getting-started/usage/" target="_blank">Catppuccin</a>
+                        color-matching to snap bundle colors to the active flavor's palette so they
+                        look native to the theme.
+                    </li>
+                </ul>
+            </section>
+
+            <section>
                 <h2 id="pinning-messages">Pinning messages</h2>
                 <p>
-                    You can pin important bundled messages by starring them. Pinned messages will appear 
+                    You can pin important bundled messages by starring them. Pinned messages will appear
                     in their own row outside of their bundle.
+                </p>
+                <p>
+                    The pinned-messages toggle is optional and hidden by default &mdash; turn it on under
+                    <a href="#">Options &rarr; Features</a>.
                 </p>
                 <div>
                     <img 
@@ -165,6 +202,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
                     Messages in a bundle can be archived easily, with a single click. You can archive
                     all messages in a bundle, that are on the current page. Messages in each date section
                     can also be archived in the same way.
+                </p>
+                <p>
+                    The archive-all button is optional and hidden by default &mdash; turn it on under
+                    <a href="#">Options &rarr; Features</a>.
                 </p>
                 <div>
                     <img 
@@ -194,6 +235,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
                     </li>
                     <li>
                         Labels should be <b>shown</b> in the message list, which is the default behavior.
+                        inboxy reads label colors from the message list, so bundle coloring needs this on.
                     </li>
                 </ul>
             </section>
@@ -285,7 +327,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
                     <input type="checkbox" id="catppuccin-matching-checkbox">
                     <span class="slider"></span>
                 </label>
-                <span class="switch-label">Enable Catppuccin color-matching</span>
+                <span class="switch-label">Enable <a href="https://userstyles.catppuccin.com/getting-started/usage/" target="_blank">Catppuccin</a> color-matching</span>
             </div>
 
             <h2>
@@ -320,20 +362,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             <section>
                 <h2>Got feedback?</h2>
                 <p>
-                    You can send feedback through the support tab in the Chrome store 
-                    <a href="https://chrome.google.com/webstore/detail/inboxy-inbox-bundles-for/clahkkinbdcdnogkkgmacmiknnamahha" target="_blank">listing</a>, 
-                    or by submitting an 
-                    <a href="https://github.com/teresa-ou/inboxy/issues" target="_blank">issue</a> 
-                    on Github. You can report bugs, ask questions, or share 
-                    suggestions.
+                    You can report bugs, ask questions, or share suggestions by submitting an
+                    <a href="https://github.com/benoror/inboxy/issues" target="_blank">issue</a>
+                    on Github.
                 </p>
             </section>
 
             <section>
                 <h2>Release notes</h2>
                 <p>
-                    To see what's new in recent releases, 
-                    <a href="https://github.com/teresa-ou/inboxy/releases" target="_blank">see the release notes</a> 
+                    To see what's new in recent releases,
+                    <a href="https://github.com/benoror/inboxy/releases" target="_blank">see the release notes</a>
                     on Github.
                 </p>
             </section>
@@ -341,9 +380,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             <section>
                 <h2>About inboxy</h2>
                 <p>
-                    inboxy is an open-source browser extension that brings bundles to Gmail. 
-                    To learn more, visit 
+                    inboxy is an open-source browser extension that brings bundles to Gmail.
+                    To learn more, visit
                     <a href="https://www.inboxymail.com/" target="_blank">inboxymail.com</a>.
+                </p>
+                <p>
+                    This build is a <a href="https://github.com/benoror/inboxy" target="_blank">fork</a>
+                    of the original
+                    <a href="https://github.com/teresa-ou/inboxy" target="_blank">teresa-ou/inboxy</a>,
+                    with added options for combined-label bundles, bundle coloring, and Stylus
+                    theme-matching, so it differs from the published extension.
                 </p>
             </section>
         </div>
