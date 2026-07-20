@@ -24,6 +24,7 @@ function saveOptions() {
     const combineLabels = document.getElementById('combine-labels-checkbox').checked;
     const colorBundlesByLabel = document.getElementById('color-bundles-checkbox').checked;
     const bundleColorStyle = document.querySelector('input[name="bundleColorStyle"]:checked').value;
+    const matchStylusCatppuccin = document.getElementById('catppuccin-matching-checkbox').checked;
     const showPinnedToggle = document.getElementById('show-pinned-toggle-checkbox').checked;
     const showBundleArchive = document.getElementById('show-bundle-archive-checkbox').checked;
 
@@ -34,6 +35,7 @@ function saveOptions() {
         combineLabels: !!combineLabels,
         colorBundlesByLabel: !!colorBundlesByLabel,
         bundleColorStyle: bundleColorStyle,
+        matchStylusCatppuccin: !!matchStylusCatppuccin,
         showPinnedToggle: !!showPinnedToggle,
         showBundleArchive: !!showBundleArchive,
     }, function() {
@@ -55,6 +57,7 @@ function restoreOptions() {
         combineLabels: true,
         colorBundlesByLabel: true,
         bundleColorStyle: 'background',
+        matchStylusCatppuccin: false,
         showPinnedToggle: false,
         showBundleArchive: false,
     }, function(items) {
@@ -76,6 +79,7 @@ function restoreOptions() {
             : 'color-style-background';
         document.getElementById(styleId).checked = true;
 
+        document.getElementById('catppuccin-matching-checkbox').checked = items.matchStylusCatppuccin;
         document.getElementById('show-pinned-toggle-checkbox').checked = items.showPinnedToggle;
         document.getElementById('show-bundle-archive-checkbox').checked = items.showBundleArchive;
 

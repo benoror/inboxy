@@ -38,6 +38,7 @@ import {
     LABEL_SET_SEPARATOR,
 } from '../util/Constants';
 import DomUtils from '../util/DomUtils';
+import { detectThemeFlavor, flavorBase, snapToAccent } from '../util/ThemePalette';
 
 /**
  * Groups messages into bundles, and renders those bundles.
@@ -52,14 +53,16 @@ class Bundler {
         this.inboxyStyler = new InboxyStyler(bundledMail);
         this.quickSelectHandler = new QuickSelectHandler();
         chrome.storage.sync.get(
-            ['groupMessagesByDate', 'colorBundlesByLabel', 'bundleColorStyle'],
+            ['groupMessagesByDate', 'colorBundlesByLabel', 'bundleColorStyle', 'matchStylusCatppuccin'],
             ({
                 groupMessagesByDate = true,
                 colorBundlesByLabel = true,
                 bundleColorStyle = 'background',
+                matchStylusCatppuccin = false,
             }) => {
                 this.groupMessagesByDate = groupMessagesByDate;
                 this.colorBundlesByLabel = colorBundlesByLabel;
+                this.matchStylusCatppuccin = matchStylusCatppuccin;
                 document.querySelector('html').classList.toggle(
                     InboxyClasses.LABEL_COLOR_ACCENT,
                     colorBundlesByLabel && bundleColorStyle === 'accent');
@@ -121,6 +124,8 @@ class Bundler {
 
         document.querySelector('html').classList.add(InboxyClasses.INBOXY);
         tableBody.classList.add('flex-table-body');
+
+        this._detectTheme();
 
         const messageNodes = [...tableBody.querySelectorAll(TableBodySelectors.MESSAGE_NODES)];
 
@@ -316,8 +321,40 @@ class Bundler {
     }
 
     /**
+     * When the opt-in Catppuccin matching is enabled, detect the active flavor
+     * of a Catppuccin userstyle (Stylus) from the injected <style class="stylus">
+     * elements, so bundle colors can be snapped to its palette. Left null (no
+     * matching) when the option is off or no Catppuccin theme is present.
+     */
+    _detectTheme() {
+        const html = document.querySelector('html');
+        if (!this.matchStylusCatppuccin) {
+            this.themeFlavor = null;
+            html.style.removeProperty('--inboxy-fill-base');
+            return;
+        }
+
+        const themeCss = [...document.querySelectorAll('style.stylus')]
+            .map(s => s.textContent)
+            .join('\n');
+        // Choose light vs dark flavor from Gmail's own theme, which drives the
+        // visible appearance (more reliable than prefers-color-scheme, which can
+        // disagree when Gmail is set light on a dark OS or vice versa).
+        const isDark = html.classList.contains(InboxyClasses.MESSAGES_DARK_THEME);
+        this.themeFlavor = detectThemeFlavor(themeCss, isDark);
+
+        if (this.themeFlavor) {
+            html.style.setProperty('--inboxy-fill-base', flavorBase(this.themeFlavor));
+        }
+        else {
+            html.style.removeProperty('--inboxy-fill-base');
+        }
+    }
+
+    /**
      * Find the Gmail label color for a bundle, by checking its messages until a
-     * colored label chip is found. Returns { background, color } or null.
+     * colored label chip is found. Returns { background, color, accent } or null.
+     * With Catppuccin matching active, colors are snapped to the theme palette.
      */
     _findLabelColors(label, messages) {
         // For a combined-label bundle the key is several labels joined; color by
@@ -326,9 +363,19 @@ class Bundler {
         for (const message of messages) {
             const colors = DomUtils.getLabelColors(message, firstLabel);
             if (colors) {
-                const isDarkTheme = document.querySelector('html')
-                    .classList.contains(InboxyClasses.MESSAGES_DARK_THEME);
-                colors.accent = DomUtils.pickAccentColor(colors, isDarkTheme);
+                if (this.themeFlavor) {
+                    // Snap Gmail's label color to the nearest theme accent so the
+                    // bundle looks native to the userstyle's palette.
+                    const accent = snapToAccent(colors.background, this.themeFlavor);
+                    colors.background = accent;
+                    colors.color = accent;
+                    colors.accent = accent;
+                }
+                else {
+                    const isDarkTheme = document.querySelector('html')
+                        .classList.contains(InboxyClasses.MESSAGES_DARK_THEME);
+                    colors.accent = DomUtils.pickAccentColor(colors, isDarkTheme);
+                }
                 return colors;
             }
         }

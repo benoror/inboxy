@@ -32,6 +32,9 @@ and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/inboxy-inbox-bundle
   (enable in Options)
 * The pinned-messages toggle and per-bundle archive-all button are optional
   (hidden by default; enable them under Options → Features)
+* Optional Stylus userstyle color-matching: when enabled, bundle colors are
+  snapped to a detected Catppuccin theme's palette (Options → Bundle colors →
+  Stylus; off by default)
 
 For more info, visit https://www.inboxymail.com.
 
