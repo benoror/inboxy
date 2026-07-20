@@ -48,3 +48,12 @@ test('formatLabelSetTitle - partial segment overlap is not treated as shared', (
     expect(formatLabelSetTitle(['IH/AI', 'IH/AInautics']))
         .toBe('IH/(AI, AInautics)');
 });
+
+test('formatLabelSetTitle - factors a parent shared by only a subset', () => {
+    expect(formatLabelSetTitle(['Fam/+ale', 'Fam/Contab', 'Fin', 'Job/Trivelta', 'USA']))
+        .toBe('Fam/(+ale, Contab) + Fin + Job/Trivelta + USA');
+});
+
+test('formatLabelSetTitle - factors several independent parent groups', () => {
+    expect(formatLabelSetTitle(['A/x', 'A/y', 'B/z'])).toBe('A/(x, y) + B/z');
+});

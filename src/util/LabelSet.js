@@ -17,63 +17,65 @@
 const NESTED_SEPARATOR = '/';
 
 /**
- * Longest common leading run of segments shared by every segment list.
+ * Build a trie of the labels' path segments. Each node is
+ * { segment, isLabel, children } where isLabel marks a node at which a label
+ * actually ends, and children is an insertion-ordered Map of segment -> node.
  */
-function _longestCommonPrefix(segmentLists) {
-    if (segmentLists.length === 0) {
-        return [];
+function _buildForest(labels) {
+    const root = new Map();
+    for (const label of labels) {
+        let level = root;
+        let node = null;
+        for (const segment of label.split(NESTED_SEPARATOR)) {
+            if (!level.has(segment)) {
+                level.set(segment, { segment, isLabel: false, children: new Map() });
+            }
+            node = level.get(segment);
+            level = node.children;
+        }
+        if (node) {
+            node.isLabel = true;
+        }
+    }
+    return root;
+}
+
+function _renderNode(node) {
+    const children = [...node.children.values()];
+    if (children.length === 0) {
+        return node.segment;
     }
 
-    let prefix = segmentLists[0].slice();
-    for (let i = 1; i < segmentLists.length; i++) {
-        const segments = segmentLists[i];
-        let j = 0;
-        while (j < prefix.length && j < segments.length && prefix[j] === segments[j]) {
-            j++;
-        }
-        prefix = prefix.slice(0, j);
-        if (prefix.length === 0) {
-            break;
-        }
+    const childStrings = children.map(_renderNode);
+    if (node.isLabel) {
+        // The node is itself a label *and* a parent of others; every one of
+        // them is a real label on the thread, so list them as peers.
+        return [node.segment, ...childStrings].join(' + ');
     }
-    return prefix;
+
+    // Pure parent: group its children under it, shown once.
+    const inner = childStrings.length === 1
+        ? childStrings[0]
+        : `(${childStrings.join(', ')})`;
+    return `${node.segment}${NESTED_SEPARATOR}${inner}`;
 }
 
 /**
  * Present a set of (possibly nested) labels compactly for a combined bundle's
- * title. When the labels share a common parent path, the parent is shown once
- * instead of being repeated on every label:
+ * title. Any shared parent path is shown once instead of being repeated,
+ * grouping is done per shared parent (not just a single global prefix):
  *
- *   ['IH/AI', 'IH/AI/Bender']              -> 'IH/AI + Bender'
- *   ['IH/AI', 'IH/Kamek', 'IH/Spoint/Bro'] -> 'IH/(AI, Kamek, Spoint/Bro)'
- *   ['Crypto', 'Fin']                      -> 'Crypto + Fin'   (no shared parent)
- *
- * A single label (or a set with no shared parent) is just joined with ' + '.
+ *   ['IH/AI', 'IH/AI/Bender']                   -> 'IH/AI + Bender'
+ *   ['IH/AI', 'IH/Kamek', 'IH/Spoint/Bro']      -> 'IH/(AI, Kamek, Spoint/Bro)'
+ *   ['Fam/+ale', 'Fam/Contab', 'Fin', 'US/x']   -> 'Fam/(+ale, Contab) + Fin + US/x'
+ *   ['Crypto', 'Fin']                           -> 'Crypto + Fin'  (no shared parent)
  */
 function formatLabelSetTitle(labels) {
     if (labels.length <= 1) {
         return labels.join(' + ');
     }
 
-    const segmentLists = labels.map(l => l.split(NESTED_SEPARATOR));
-    const common = _longestCommonPrefix(segmentLists);
-    if (common.length === 0) {
-        return labels.join(' + ');
-    }
-
-    const commonPath = common.join(NESTED_SEPARATOR);
-    const tails = segmentLists.map(segments =>
-        segments.slice(common.length).join(NESTED_SEPARATOR));
-
-    // A tail is empty when that label *is* the shared parent. In that case show
-    // the parent followed by each child's leaf ("IH/AI + Bender"); otherwise the
-    // labels are siblings, so group their leaves under the parent ("IH/(a, b)").
-    const parentIsMember = tails.some(t => t === '');
-    const leaves = tails.filter(t => t !== '');
-
-    return parentIsMember
-        ? [commonPath, ...leaves].join(' + ')
-        : `${commonPath}/(${leaves.join(', ')})`;
+    return [..._buildForest(labels).values()].map(_renderNode).join(' + ');
 }
 
 export { formatLabelSetTitle };
