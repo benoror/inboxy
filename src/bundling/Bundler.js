@@ -38,7 +38,7 @@ import {
     LABEL_SET_SEPARATOR,
 } from '../util/Constants';
 import DomUtils from '../util/DomUtils';
-import { detectThemeFlavor, flavorBase, snapToAccent } from '../util/ThemePalette';
+import { detectThemeFlavor, flavorBase, snapToAccent, isNeutral } from '../util/ThemePalette';
 
 /**
  * Groups messages into bundles, and renders those bundles.
@@ -365,7 +365,10 @@ class Bundler {
             if (colors) {
                 if (this.themeFlavor) {
                     // Snap Gmail's label color to the nearest theme accent so the
-                    // bundle looks native to the userstyle's palette.
+                    // bundle looks native to the userstyle's palette. Gray labels
+                    // map to a neutral tone; flag them so the fill blends more
+                    // strongly and doesn't disappear into the theme background.
+                    colors.neutral = isNeutral(colors.background);
                     const accent = snapToAccent(colors.background, this.themeFlavor);
                     colors.background = accent;
                     colors.color = accent;

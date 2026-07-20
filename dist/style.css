@@ -133,7 +133,7 @@ html.inboxy.messages-dark-theme {
 }
 html.inboxy .bundle-row.label-colored,
 html.inboxy .bundle-area.label-colored {
-    --inboxy-label-tint: color-mix(in srgb, var(--inboxy-label-bg) 20%, var(--inboxy-fill-base));
+    --inboxy-label-tint: color-mix(in srgb, var(--inboxy-label-bg) var(--inboxy-label-mix, 20%), var(--inboxy-fill-base));
 }
 
 /* -- Left accent bar (both styles; accent color survives pale/white labels) -- */

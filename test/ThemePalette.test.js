@@ -14,7 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import { detectThemeFlavor, flavorBase, snapToAccent } from '../src/util/ThemePalette';
+import { detectThemeFlavor, flavorBase, snapToAccent, isNeutral } from '../src/util/ThemePalette';
+
+//
+// isNeutral
+//
+
+test('isNeutral - true for gray-ish colors, false for colorful ones', () => {
+    expect(isNeutral('rgb(231, 231, 231)')).toBe(true);
+    expect(isNeutral('rgb(67, 67, 67)')).toBe(true);
+    expect(isNeutral('rgb(66, 214, 146)')).toBe(false); // green
+    expect(isNeutral('rgb(30, 102, 245)')).toBe(false);  // blue
+    expect(isNeutral('')).toBe(false);
+});
 
 //
 // detectThemeFlavor

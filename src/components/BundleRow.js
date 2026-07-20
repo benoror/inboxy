@@ -140,6 +140,11 @@ function create(label, order, messages, hasUnread, toggleBundle, baseUrl, labelC
         if (labelColors.accent) {
             el.style.setProperty('--inboxy-label-accent', labelColors.accent);
         }
+        // Gray/neutral theme-matched bundles blend more strongly so their fill
+        // stands out from the theme background instead of matching it.
+        if (labelColors.neutral) {
+            el.style.setProperty('--inboxy-label-mix', '42%');
+        }
     }
 
     return el;

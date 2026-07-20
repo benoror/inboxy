@@ -70,6 +70,19 @@ function detectThemeFlavor(themeCss, prefersDark) {
     return matchingScheme[0] || present[0];
 }
 
+/**
+ * Whether a color is "gray" (below the neutral chroma threshold) — i.e. it maps
+ * to a flavor's neutral tone rather than an accent. Such bundles need a stronger
+ * fill so they don't blend into the theme's background.
+ */
+function isNeutral(colorString) {
+    const rgb = _parseRgb(colorString);
+    if (!rgb) {
+        return false;
+    }
+    return (Math.max(...rgb) - Math.min(...rgb)) < NEUTRAL_CHROMA_THRESHOLD;
+}
+
 /** The base (background) color of a flavor, as an 'rgb(...)' string. */
 function flavorBase(flavor) {
     const data = FLAVORS[flavor];
@@ -112,4 +125,4 @@ function snapToAccent(colorString, flavor) {
     return `rgb(${best[0]}, ${best[1]}, ${best[2]})`;
 }
 
-export { detectThemeFlavor, flavorBase, snapToAccent, FLAVORS };
+export { detectThemeFlavor, flavorBase, snapToAccent, isNeutral, FLAVORS };
