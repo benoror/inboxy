@@ -1,22 +1,16 @@
-## ⚠️ Maintenance & support
-
-inboxy continues to be available for Chrome and Firefox, but the extension is no longer actively maintained.
-
-Critical updates that affect the core functionality of the extension (i.e. bundling) will still be made, as needed. Issues and pull requests will not be actively monitored.
-
----
-
 <p align="center">
   <img width="650" src="https://github.com/teresa-ou/inboxy/blob/master/images/inboxy-illustration.png" alt="Illustration of inboxy">
 </p>
 
 # inboxy: Google Inbox-style bundles for Gmail
 
-inboxy is a browser extension that bundles together your email messages and makes it easier to manage
-your inbox. 
+> **Fork notice:** This is [benoror/inboxy](https://github.com/benoror/inboxy), a maintained fork of
+> [teresa-ou/inboxy](https://github.com/teresa-ou/inboxy) with additional options for combined-label
+> bundles, bundle coloring, and Stylus theme-matching. It is not published to the Chrome or Firefox
+> stores — load it as an unpacked extension from `dist/`.
 
-Available for [Chrome](https://chrome.google.com/webstore/detail/inboxy-inbox-bundles-for/clahkkinbdcdnogkkgmacmiknnamahha) 
-and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/inboxy-inbox-bundles-for-gmail/).
+inboxy is a browser extension that bundles together your email messages and makes it easier to manage
+your inbox.
 
 ## Features
 
@@ -36,7 +30,7 @@ and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/inboxy-inbox-bundle
   snapped to a detected Catppuccin theme's palette (Options → Bundle colors →
   Stylus; off by default)
 
-For more info, visit https://www.inboxymail.com.
+For more info on the original project, visit https://www.inboxymail.com.
 
 ## Setup
 
@@ -57,7 +51,7 @@ The `dist` directory can then be loaded as an [unpacked extension](https://devel
 
 ## Feedback
 
-Feel free to [send feedback](https://github.com/teresa-ou/inboxy/issues) by filing an issue.
+Feel free to [send feedback](https://github.com/benoror/inboxy/issues) by filing an issue.
 
 ## Acknowledgements
 
@@ -66,4 +60,5 @@ Feel free to [send feedback](https://github.com/teresa-ou/inboxy/issues) by fili
 
 ## License
 
-[GPL](https://github.com/teresa-ou/inboxy/blob/master/COPYING), Copyright (C) 2020  [Teresa Ou](https://github.com/teresa-ou)
+[GPL-3.0](https://github.com/benoror/inboxy/blob/master/COPYING), Copyright (C) 2020 [Teresa Ou](https://github.com/teresa-ou).
+Fork maintained by [benoror](https://github.com/benoror).
