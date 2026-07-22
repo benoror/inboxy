@@ -165,10 +165,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
                     </li>
                     <li>
                         <b>Priority bundles.</b> Force chosen labels (or label sets) to always bundle
-                        together, whatever else a thread carries &mdash; e.g. <code>Crypto</code>
-                        keeps every crypto thread in one bundle, <code>Crypto/*</code> also folds in
-                        its sub-labels, and <code>A&nbsp;+&nbsp;B</code> captures threads with both.
-                        Rules are checked top to bottom; the first match wins.
+                        together, whatever else a thread carries &mdash; e.g. <code>Bank</code>
+                        keeps every bank thread in one bundle, <code>School/*</code> also folds in
+                        its sub-labels, and <code>Work&nbsp;+&nbsp;Urgent</code> captures threads with
+                        both. Rules are checked top to bottom; the first match wins.
                     </li>
                     <li>
                         <b>Single-item bundles.</b> Labels with only one thread are shown as regular
@@ -308,16 +308,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
                 <div class="help-container">
                     <img src="assets/help.svg" class="help-icon">
                     <div class="tooltip">
-                        One rule per line. A rule captures matching threads into a single bundle, overriding combined-label grouping. Use &ldquo;A&nbsp;+&nbsp;B&rdquo; to require several labels, and a trailing &ldquo;/*&rdquo; to include sub-labels (e.g. &ldquo;Crypto/*&rdquo;). Rules are checked top to bottom; the first match wins.
+                        One rule per line. A rule captures matching threads into a single bundle, overriding combined-label grouping. Join labels with &ldquo;+&rdquo; to require several at once, and add a trailing &ldquo;/*&rdquo; to also include a label's sub-labels. Rules are checked top to bottom; the first match wins.
                     </div>
                 </div>
             </h2>
             <p class="subsection-note">
                 Force specific labels (or label sets) to always bundle together, regardless of the
-                other labels a thread carries. For example, <code>Crypto</code> keeps every crypto
-                thread in one bundle even when it also has <code>Taxes</code>; <code>Crypto/*</code>
-                also folds in nested sub-labels; and <code>A&nbsp;+&nbsp;B</code> captures threads
-                that carry both A and B.
+                other labels a thread carries. Add a trailing <code>/*</code> to also include a
+                label's sub-labels, or join labels with <code>+</code> to capture threads that carry
+                all of them. Rules are checked top to bottom; the first match wins.
             </p>
 
             <textarea id="priority-bundles-list" rows="6"></textarea>

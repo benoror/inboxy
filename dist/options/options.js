@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 const PLACEHOLDER = 'Add the name of each bundle on a new line, for example:\n\nBank\nSchool\nAppointments';
+const PRIORITY_PLACEHOLDER = 'Add a priority rule on each line, for example:\n\nBank\nSchool/*\nWork + Urgent';
 
 function saveOptions() {
     const exclude = document.getElementById('exclude-radio').checked;
@@ -80,7 +81,9 @@ function restoreOptions() {
 
         document.getElementById('group-by-date-checkbox').checked = items.groupMessagesByDate;
         document.getElementById('combine-labels-checkbox').checked = items.combineLabels;
-        document.getElementById('priority-bundles-list').value = items.priorityBundles.join('\n');
+        const priorityList = document.getElementById('priority-bundles-list');
+        priorityList.value = items.priorityBundles.join('\n');
+        priorityList.placeholder = PRIORITY_PLACEHOLDER;
         document.getElementById('skip-single-item-bundles-checkbox').checked = items.skipSingleItemBundles;
         document.getElementById('color-bundles-checkbox').checked = items.colorBundlesByLabel;
 
