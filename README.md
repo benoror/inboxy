@@ -17,6 +17,10 @@ your inbox.
 * Messages with the same label are bundled together in your inbox
 * Optionally bundle by the whole *set* of labels, so threads sharing labels
   A + B form their own bundle, colored by the first label (enable in Options)
+* Priority bundles: force chosen labels (or label sets) to always group
+  together regardless of a thread's other labels — e.g. `Crypto`, `Crypto/*`
+  (subtree), or `A + B`; first matching rule wins (configure in Options)
+* Single-item bundles are skipped by default, shown as regular messages
 * Archive all bundled messages on the current page quickly
 * Star a message to pin it outside of its bundle
 * Intuitive date headings

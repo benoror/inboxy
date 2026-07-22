@@ -22,6 +22,8 @@ function saveOptions() {
     const labels = labelList.value.split(/[\n]+/).map(s => s.trim()).filter(s => !!s);
     const groupMessagesByDate = document.getElementById('group-by-date-checkbox').checked;
     const combineLabels = document.getElementById('combine-labels-checkbox').checked;
+    const priorityList = document.getElementById('priority-bundles-list');
+    const priorityBundles = priorityList.value.split(/[\n]+/).map(s => s.trim()).filter(s => !!s);
     const skipSingleItemBundles = document.getElementById('skip-single-item-bundles-checkbox').checked;
     const colorBundlesByLabel = document.getElementById('color-bundles-checkbox').checked;
     const bundleColorStyle = document.querySelector('input[name="bundleColorStyle"]:checked').value;
@@ -34,6 +36,7 @@ function saveOptions() {
         labels: labels,
         groupMessagesByDate: !!groupMessagesByDate,
         combineLabels: !!combineLabels,
+        priorityBundles: priorityBundles,
         skipSingleItemBundles: !!skipSingleItemBundles,
         colorBundlesByLabel: !!colorBundlesByLabel,
         bundleColorStyle: bundleColorStyle,
@@ -42,6 +45,7 @@ function saveOptions() {
         showBundleArchive: !!showBundleArchive,
     }, function() {
         labelList.value = labels.join('\n');
+        priorityList.value = priorityBundles.join('\n');
 
         const saveButton = document.getElementById('save-button');
         saveButton.classList.add('saved');
@@ -57,6 +61,7 @@ function restoreOptions() {
         labels: [],
         groupMessagesByDate: true,
         combineLabels: true,
+        priorityBundles: [],
         skipSingleItemBundles: true,
         colorBundlesByLabel: true,
         bundleColorStyle: 'background',
@@ -75,6 +80,7 @@ function restoreOptions() {
 
         document.getElementById('group-by-date-checkbox').checked = items.groupMessagesByDate;
         document.getElementById('combine-labels-checkbox').checked = items.combineLabels;
+        document.getElementById('priority-bundles-list').value = items.priorityBundles.join('\n');
         document.getElementById('skip-single-item-bundles-checkbox').checked = items.skipSingleItemBundles;
         document.getElementById('color-bundles-checkbox').checked = items.colorBundlesByLabel;
 

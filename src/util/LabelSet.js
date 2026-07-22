@@ -78,4 +78,58 @@ function formatLabelSetTitle(labels) {
     return [..._buildForest(labels).values()].map(_renderNode).join(' + ');
 }
 
-export { formatLabelSetTitle };
+//
+// Priority bundles
+//
+// A priority rule captures matching threads into a single bundle, overriding
+// the normal per-set grouping. A rule is a list of label patterns (a set); a
+// thread must match every pattern to be captured. A pattern ending in '/*'
+// matches that label and its whole sub-label subtree (any depth); otherwise it
+// matches the label exactly. Matching is case-insensitive.
+//
+
+const WILDCARD_SUFFIX = NESTED_SEPARATOR + '*';
+
+/**
+ * Does a single label pattern match a thread's label? A trailing '/*' matches
+ * the base label itself and anything nested beneath it; otherwise exact match.
+ */
+function matchLabelPattern(pattern, label) {
+    const p = pattern.trim().toLowerCase();
+    const l = label.toLowerCase();
+    if (p.endsWith(WILDCARD_SUFFIX)) {
+        const base = p.slice(0, -WILDCARD_SUFFIX.length);
+        return l === base || l.startsWith(base + NESTED_SEPARATOR);
+    }
+    return l === p;
+}
+
+/**
+ * Parse priority-bundle lines into rules. Each line is one rule; '+' separates
+ * the labels that must all be present (e.g. 'A + B'). Empty parts are dropped.
+ */
+function parsePriorityRules(lines) {
+    return lines
+        .map(line => line.split('+').map(s => s.trim()).filter(Boolean))
+        .filter(patterns => patterns.length > 0);
+}
+
+/** A rule matches a thread when every pattern in it matches some label. */
+function ruleMatchesLabels(rule, labels) {
+    return rule.every(pattern => labels.some(label => matchLabelPattern(pattern, label)));
+}
+
+/** The bundle's identity/display labels for a rule (wildcard suffixes removed). */
+function ruleLabels(rule) {
+    return rule.map(pattern => pattern.endsWith(WILDCARD_SUFFIX)
+        ? pattern.slice(0, -WILDCARD_SUFFIX.length)
+        : pattern);
+}
+
+export {
+    formatLabelSetTitle,
+    matchLabelPattern,
+    parsePriorityRules,
+    ruleMatchesLabels,
+    ruleLabels,
+};

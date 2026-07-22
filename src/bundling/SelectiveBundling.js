@@ -16,6 +16,7 @@
 
 import DomUtils from '../util/DomUtils';
 import { LABEL_SET_SEPARATOR } from '../util/Constants';
+import { parsePriorityRules, ruleMatchesLabels, ruleLabels } from '../util/LabelSet';
 
 /**
  * Identifies the labels that have bundling enabled, according to the user's options.
@@ -24,12 +25,14 @@ import { LABEL_SET_SEPARATOR } from '../util/Constants';
 class SelectiveBundling {
     constructor() {
         const self = this;
+        this.priorityRules = [];
         chrome.storage.sync.get(
-            ['exclude', 'labels', 'combineLabels'],
-            ({ exclude = true, labels = [], combineLabels = true }) => {
+            ['exclude', 'labels', 'combineLabels', 'priorityBundles'],
+            ({ exclude = true, labels = [], combineLabels = true, priorityBundles = [] }) => {
                 self.exclude = exclude;
                 self.labels = new Set(labels.map(s => s.toLowerCase()));
                 self.combineLabels = combineLabels;
+                self.priorityRules = parsePriorityRules(priorityBundles);
             });
     }
 
@@ -38,9 +41,20 @@ class SelectiveBundling {
      * of its bundling-enabled labels (one bundle per label). When combineLabels
      * is on, the whole set of labels is joined into a single key, so a distinct
      * combination of labels forms its own bundle.
+     *
+     * Priority rules take precedence: if the message matches one (checked top to
+     * bottom, first match wins), that rule becomes its sole bundle, overriding
+     * both the include/exclude gate and set-grouping. This lets specific labels
+     * (or label sets) always group together, regardless of other labels present.
      */
     findRelevantLabels(message) {
         const messageLabels = DomUtils.getLabelStrings(message);
+
+        for (const rule of this.priorityRules) {
+            if (ruleMatchesLabels(rule, messageLabels)) {
+                return [ruleLabels(rule).join(LABEL_SET_SEPARATOR)];
+            }
+        }
 
         const relevant = this.exclude
             ? messageLabels.filter(l => !this.labels.has(l.toLowerCase()))
