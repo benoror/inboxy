@@ -22,6 +22,7 @@ function saveOptions() {
     const labels = labelList.value.split(/[\n]+/).map(s => s.trim()).filter(s => !!s);
     const groupMessagesByDate = document.getElementById('group-by-date-checkbox').checked;
     const combineLabels = document.getElementById('combine-labels-checkbox').checked;
+    const skipSingleItemBundles = document.getElementById('skip-single-item-bundles-checkbox').checked;
     const colorBundlesByLabel = document.getElementById('color-bundles-checkbox').checked;
     const bundleColorStyle = document.querySelector('input[name="bundleColorStyle"]:checked').value;
     const matchStylusCatppuccin = document.getElementById('catppuccin-matching-checkbox').checked;
@@ -33,6 +34,7 @@ function saveOptions() {
         labels: labels,
         groupMessagesByDate: !!groupMessagesByDate,
         combineLabels: !!combineLabels,
+        skipSingleItemBundles: !!skipSingleItemBundles,
         colorBundlesByLabel: !!colorBundlesByLabel,
         bundleColorStyle: bundleColorStyle,
         matchStylusCatppuccin: !!matchStylusCatppuccin,
@@ -55,6 +57,7 @@ function restoreOptions() {
         labels: [],
         groupMessagesByDate: true,
         combineLabels: true,
+        skipSingleItemBundles: true,
         colorBundlesByLabel: true,
         bundleColorStyle: 'background',
         matchStylusCatppuccin: false,
@@ -72,6 +75,7 @@ function restoreOptions() {
 
         document.getElementById('group-by-date-checkbox').checked = items.groupMessagesByDate;
         document.getElementById('combine-labels-checkbox').checked = items.combineLabels;
+        document.getElementById('skip-single-item-bundles-checkbox').checked = items.skipSingleItemBundles;
         document.getElementById('color-bundles-checkbox').checked = items.colorBundlesByLabel;
 
         const styleId = items.bundleColorStyle === 'accent'

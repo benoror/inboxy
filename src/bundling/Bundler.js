@@ -53,16 +53,18 @@ class Bundler {
         this.inboxyStyler = new InboxyStyler(bundledMail);
         this.quickSelectHandler = new QuickSelectHandler();
         chrome.storage.sync.get(
-            ['groupMessagesByDate', 'colorBundlesByLabel', 'bundleColorStyle', 'matchStylusCatppuccin'],
+            ['groupMessagesByDate', 'colorBundlesByLabel', 'bundleColorStyle', 'matchStylusCatppuccin', 'skipSingleItemBundles'],
             ({
                 groupMessagesByDate = true,
                 colorBundlesByLabel = true,
                 bundleColorStyle = 'background',
                 matchStylusCatppuccin = false,
+                skipSingleItemBundles = true,
             }) => {
                 this.groupMessagesByDate = groupMessagesByDate;
                 this.colorBundlesByLabel = colorBundlesByLabel;
                 this.matchStylusCatppuccin = matchStylusCatppuccin;
+                this.skipSingleItemBundles = skipSingleItemBundles;
                 document.querySelector('html').classList.toggle(
                     InboxyClasses.LABEL_COLOR_ACCENT,
                     colorBundlesByLabel && bundleColorStyle === 'accent');
@@ -130,6 +132,15 @@ class Bundler {
         const messageNodes = [...tableBody.querySelectorAll(TableBodySelectors.MESSAGE_NODES)];
 
         const bundlesByLabel = this._groupByLabel(messageNodes);
+
+        if (this.skipSingleItemBundles) {
+            for (const label in bundlesByLabel) {
+                if (bundlesByLabel[label].getMessages().length === 1) {
+                    delete bundlesByLabel[label];
+                }
+            }
+        }
+
         const sortedTableRows = this._calculateSortedTableRows(messageNodes, bundlesByLabel);
         
         const bundleRowsByLabel = this._drawTableRows(sortedTableRows, tableBody);
@@ -207,7 +218,10 @@ class Bundler {
             const message = messageNodes[i];
             const messageLabels = this.selectiveBundling.findRelevantLabels(message);
 
-            if (messageLabels.length === 0 || this._isStarred(message)) {
+            // Labels whose bundle was pruned (e.g. single-item) fall through to unbundled.
+            const bundlableLabels = messageLabels.filter(l => bundlesByLabel[l]);
+
+            if (bundlableLabels.length === 0 || this._isStarred(message)) {
                 rows.push({
                     element: message,
                     type: Element.UNBUNDLED_MESSAGE,
@@ -215,8 +229,8 @@ class Bundler {
                 continue;
             }
 
-            messageLabels.forEach(l => {
-                if (!labels.has(l) && bundlesByLabel[l]) {
+            bundlableLabels.forEach(l => {
+                if (!labels.has(l)) {
                     rows.push({
                         element: bundlesByLabel[l],
                         type: Element.BUNDLE,
