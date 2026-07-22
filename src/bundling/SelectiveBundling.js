@@ -16,11 +16,15 @@
 
 import DomUtils from '../util/DomUtils';
 import { LABEL_SET_SEPARATOR } from '../util/Constants';
-import { parsePriorityRules, ruleMatchesLabels, ruleLabels } from '../util/LabelSet';
+import { matchLabelPattern, parsePriorityRules, ruleMatchesLabels, ruleLabels } from '../util/LabelSet';
 
 /**
  * Identifies the labels that have bundling enabled, according to the user's options.
  * By default, all labels are bundled.
+ *
+ * The include/exclude list matches labels case-insensitively. Each entry is a
+ * pattern: a plain label matches exactly, while a trailing '/*' matches that
+ * label and its whole sub-label subtree (any depth) — e.g. 'Newsletters/*'.
  */
 class SelectiveBundling {
     constructor() {
@@ -30,7 +34,7 @@ class SelectiveBundling {
             ['exclude', 'labels', 'combineLabels', 'priorityBundles'],
             ({ exclude = true, labels = [], combineLabels = true, priorityBundles = [] }) => {
                 self.exclude = exclude;
-                self.labels = new Set(labels.map(s => s.toLowerCase()));
+                self.labels = labels.map(s => s.trim()).filter(Boolean);
                 self.combineLabels = combineLabels;
                 self.priorityRules = parsePriorityRules(priorityBundles);
             });
@@ -56,9 +60,10 @@ class SelectiveBundling {
             }
         }
 
+        const inList = l => this.labels.some(pattern => matchLabelPattern(pattern, l));
         const relevant = this.exclude
-            ? messageLabels.filter(l => !this.labels.has(l.toLowerCase()))
-            : messageLabels.filter(l => this.labels.has(l.toLowerCase()));
+            ? messageLabels.filter(l => !inList(l))
+            : messageLabels.filter(l => inList(l));
 
         if (this.combineLabels) {
             return relevant.length ? [relevant.join(LABEL_SET_SEPARATOR)] : [];

@@ -88,6 +88,13 @@ test('matchLabelPattern - wildcard does not match a sibling with a shared prefix
     expect(matchLabelPattern('Crypto/*', 'Cryptography')).toBe(false);
 });
 
+test('matchLabelPattern - wildcard is multi-level and parent-inclusive', () => {
+    expect(matchLabelPattern('Newsletters/*', 'Newsletters')).toBe(true);
+    expect(matchLabelPattern('Newsletters/*', 'Newsletters/Tech/AI/Weekly')).toBe(true);
+    expect(matchLabelPattern('newsletters/*', 'Newsletters/Tech')).toBe(true);
+    expect(matchLabelPattern('Newsletters/*', 'Work')).toBe(false);
+});
+
 //
 // parsePriorityRules
 //
