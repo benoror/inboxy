@@ -32,6 +32,10 @@
       "node_modules",
       "bower_components",
       "shared"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/.claude/"
     ]
   }
 }
