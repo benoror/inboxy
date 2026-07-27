@@ -58,12 +58,44 @@ npm test          # Jest tests
 After a rebuild: click **reload ↻** on the inboxy card in `chrome://extensions`, then
 refresh Gmail.
 
+## Releasing
+
+This fork runs its **own release line**, independent of upstream teresa-ou/inboxy — we do
+**not** propose changes upstream. PRs, tags, and releases all live on `benoror/inboxy`.
+
+Conventions:
+
+- **Semantic versioning**, tags prefixed `v` (e.g. `v2.0.0`). `package.json` and
+  `dist/manifest.json` share one version — always bump them together.
+- The **manifest version is what ships** and Chrome requires plain dotted integers
+  (1–4 groups, each 0–65535); **no** pre-release suffixes like `-beta` there. Tags/release
+  names may be richer, but keep the numeric core in sync with the manifest.
+- Every release gets a `CHANGELOG.md` entry ([Keep a Changelog](https://keepachangelog.com/)
+  format: Added / Changed / Fixed).
+
+Flow for landing a feature branch and cutting a release:
+
+1. **PR into the fork.** Open the PR against `benoror/inboxy`'s `master` explicitly —
+   `gh` defaults to the upstream parent, so always pass `--repo benoror/inboxy`:
+   ```bash
+   gh pr create --repo benoror/inboxy --base master --head <feature-branch>
+   ```
+   Prefer a **merge commit** (`gh pr merge <n> --repo benoror/inboxy --merge`) to preserve
+   the branch's atomic-commit history.
+2. **Release commit on `master`** (after merge): bump the version in both
+   `dist/manifest.json` and `package.json`, add the `CHANGELOG.md` section, commit as
+   `Release vX.Y.Z`.
+3. **Tag & push:** `git tag -a vX.Y.Z -m "inboxy vX.Y.Z (benoror fork)" && git push origin vX.Y.Z`.
+4. **GitHub Release:** `gh release create vX.Y.Z --repo benoror/inboxy --latest --notes-file <notes>`
+   (notes = that version's changelog section).
+
+> Running `npm test` from inside a `.claude/worktrees/…` path reports "0 tests": `master`'s
+> Jest config ignores `/.claude/`, which matches the worktree's own path. Run tests from the
+> main checkout, or override: `npx jest --testPathIgnorePatterns=/node_modules/`.
+
 ## Notes
 
 - `src/content.js` has a `DEBUG` flag that logs `inboxy-debug:` messages to the console.
 - Gmail ships no stable API; the extension depends on DOM selectors in
   `src/util/Constants.js`. Gmail markup changes are the usual cause of breakage.
-- This fork tracks its own release line, independent of upstream's versioning. As of
-  `2.0.0`, `package.json` and `dist/manifest.json` share the same version; bump both
-  together, tag `vX.Y.Z`, and record changes in `CHANGELOG.md`. The manifest version is
-  what ships, and Chrome requires it to be plain dotted integers (no pre-release suffix).
+- Versioning, tags, and releases are covered under **Releasing** above.
