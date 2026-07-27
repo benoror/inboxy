@@ -63,5 +63,7 @@ refresh Gmail.
 - `src/content.js` has a `DEBUG` flag that logs `inboxy-debug:` messages to the console.
 - Gmail ships no stable API; the extension depends on DOM selectors in
   `src/util/Constants.js`. Gmail markup changes are the usual cause of breakage.
-- The `version` in `package.json` (1.1.0) and the user-facing version in
-  `dist/manifest.json` (1.6.x) are tracked separately; manifest version is what ships.
+- This fork tracks its own release line, independent of upstream's versioning. As of
+  `2.0.0`, `package.json` and `dist/manifest.json` share the same version; bump both
+  together, tag `vX.Y.Z`, and record changes in `CHANGELOG.md`. The manifest version is
+  what ships, and Chrome requires it to be plain dotted integers (no pre-release suffix).
