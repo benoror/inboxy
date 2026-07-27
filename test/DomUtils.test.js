@@ -49,6 +49,24 @@ function messageWithLabel(title, { background, color } = {}) {
 }
 
 //
+// getThreadId
+//
+
+test('getThreadId - reads the stable legacy thread id from the row', () => {
+    const message = document.createElement('tr');
+    const span = document.createElement('span');
+    span.setAttribute('data-legacy-thread-id', '19fa54e3abd9ff57');
+    message.appendChild(span);
+
+    expect(DomUtils.getThreadId(message)).toBe('19fa54e3abd9ff57');
+});
+
+test('getThreadId - returns null when the row has no thread id', () => {
+    const message = document.createElement('tr');
+    expect(DomUtils.getThreadId(message)).toBeNull();
+});
+
+//
 // getLabelColors
 //
 

@@ -100,6 +100,11 @@ const Selectors = {
     SIDEPANE_TEXT: '.TO .nU',
     STARRED: `.T-KT.${GmailClasses.STARRED}`,
     TAB: `${MAIN} [role="tab"]`,
+    // Gmail stamps every message row with a stable, durable thread id (the same
+    // hex id it uses in thread URLs) on a descendant span. Unlike the row's own
+    // generated id, this survives reloads, so it's the key we persist custom
+    // bundle membership against.
+    THREAD_ID: '[data-legacy-thread-id]',
     TABPANELS: `${MAIN} [role="tabpanel"]`,
     TABLE_BODY: `.F tbody`,
     TOOLBAR_ARCHIVE_BUTTON: `.G-atb:not([style*="none"]) .T-I.J-J5-Ji[act="7"]`,
