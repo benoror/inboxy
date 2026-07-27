@@ -19,6 +19,7 @@ import BulkArchiveButton from './BulkArchiveButton';
 import MessagePageUtils from '../util/MessagePageUtils';
 import DomUtils from '../util/DomUtils';
 import { formatLabelSetTitle } from '../util/LabelSet';
+import { isCustomBundleKey, customBundleName } from '../util/CustomBundleKey';
 import {
     GmailClasses,
     InboxyClasses,
@@ -37,11 +38,13 @@ function create(label, order, messages, hasUnread, toggleBundle, baseUrl, labelC
         : messages.length;
     const unreadClass = hasUnread ? GmailClasses.UNREAD : GmailClasses.READ;
 
-    // A combined-label bundle's key is several labels joined; present them
-    // compactly (factoring any shared parent path). Single-label keys split to
-    // themselves (no separator present).
+    // A custom bundle's key carries the user's chosen name; show it verbatim.
+    // Otherwise a combined-label bundle's key is several labels joined; present
+    // them compactly (factoring any shared parent path). Single-label keys split
+    // to themselves (no separator present).
+    const isCustom = isCustomBundleKey(label);
     const labels = label.split(LABEL_SET_SEPARATOR);
-    const displayLabel = formatLabelSetTitle(labels);
+    const displayLabel = isCustom ? customBundleName(label) : formatLabelSetTitle(labels);
 
     let spacerClass = '';
     if (document.querySelector(Selectors.IMPORTANCE_MARKER)) {
@@ -117,7 +120,10 @@ function create(label, order, messages, hasUnread, toggleBundle, baseUrl, labelC
     const el = DomUtils.htmlToElement(html);
     el.appendChild(bulkArchiveTd);
     el.appendChild(DomUtils.htmlToElement(bundleDateHtml));
-    el.appendChild(DomUtils.htmlToElement(viewAllButtonHtml));
+    // A custom bundle has no Gmail label to search, so it gets no "View all"
+    // link — an empty cell keeps the row's column layout aligned.
+    el.appendChild(DomUtils.htmlToElement(
+        isCustom ? `<td class="${GmailClasses.CELL}"></td>` : viewAllButtonHtml));
 
     el.addEventListener('click', e => {
         if (!e.target.matches(`.${InboxyClasses.VIEW_ALL_LINK}`) &&

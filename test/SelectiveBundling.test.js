@@ -16,6 +16,7 @@
 
 import SelectiveBundling from '../src/bundling/SelectiveBundling';
 import DomUtils from '../src/util/DomUtils';
+import { customBundleKey } from '../src/util/CustomBundleKey';
 
 /**
  * Build a SelectiveBundling with the given stored options. The chrome storage
@@ -23,11 +24,11 @@ import DomUtils from '../src/util/DomUtils';
  * the constructor returns. combineLabels defaults to false so findRelevantLabels
  * returns the plain list of bundled labels rather than a single combined key.
  */
-function makeBundling(stored) {
+function makeBundling(stored, customBundles = null) {
     global.chrome = {
         storage: { sync: { get: (keys, cb) => cb({ combineLabels: false, ...stored }) } },
     };
-    return new SelectiveBundling();
+    return new SelectiveBundling(customBundles);
 }
 
 function relevantLabels(bundling, messageLabels) {
@@ -67,4 +68,41 @@ test('blank list bundles everything when excluding', () => {
     const bundling = makeBundling({ exclude: true, labels: [] });
     expect(relevantLabels(bundling, ['Work', 'Newsletters/Tech']))
         .toEqual(['Work', 'Newsletters/Tech']);
+});
+
+//
+// Custom bundles override label-based grouping
+//
+
+/**
+ * A stand-in CustomBundles that reports the given thread as belonging to a
+ * custom bundle. getThreadId is stubbed to that thread id.
+ */
+function withCustomBundle(threadId, bundleName) {
+    DomUtils.getThreadId = jest.fn().mockReturnValue(threadId);
+    return {
+        keyForThread: id => id === threadId ? customBundleKey(bundleName) : null,
+    };
+}
+
+test('a custom-bundled message uses its custom key, ignoring its labels', () => {
+    const customBundles = withCustomBundle('t1', 'Trip');
+    const bundling = makeBundling({ exclude: true, labels: [] }, customBundles);
+    expect(relevantLabels(bundling, ['Work', 'Newsletters']))
+        .toEqual([customBundleKey('Trip')]);
+});
+
+test('custom bundle wins over a matching priority rule', () => {
+    const customBundles = withCustomBundle('t1', 'Trip');
+    const bundling = makeBundling(
+        { exclude: true, labels: [], priorityBundles: ['Work'] },
+        customBundles);
+    expect(relevantLabels(bundling, ['Work'])).toEqual([customBundleKey('Trip')]);
+});
+
+test('a message not in any custom bundle falls through to label grouping', () => {
+    DomUtils.getThreadId = jest.fn().mockReturnValue('other');
+    const customBundles = { keyForThread: () => null };
+    const bundling = makeBundling({ exclude: true, labels: [] }, customBundles);
+    expect(relevantLabels(bundling, ['Work'])).toEqual(['Work']);
 });

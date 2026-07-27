@@ -20,6 +20,7 @@ import DateGrouper from './bundling/DateGrouper';
 import SelectiveBundling from './bundling/SelectiveBundling';
 
 import BundledMail from './containers/BundledMail';
+import CustomBundles from './containers/CustomBundles';
 
 import PinnedToggle from './components/PinnedToggle';
 
@@ -91,7 +92,8 @@ const messageListWatcher = new MessageListWatcher(handleGmailRerender);
 
 const bundledMail = new BundledMail();
 const bundleToggler = new BundleToggler(bundledMail);
-const selectiveBundling = new SelectiveBundling();
+const customBundles = new CustomBundles();
+const selectiveBundling = new SelectiveBundling(customBundles);
 const bundler = new Bundler(bundleToggler, bundledMail, messageListWatcher, selectiveBundling);
 const starHandler = new StarHandler(bundledMail, selectiveBundling);
 const dateGrouper = new DateGrouper();
