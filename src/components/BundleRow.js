@@ -18,10 +18,12 @@ import BulkArchiveButton from './BulkArchiveButton';
 
 import MessagePageUtils from '../util/MessagePageUtils';
 import DomUtils from '../util/DomUtils';
-import { 
-    GmailClasses, 
+import { formatLabelSetTitle } from '../util/LabelSet';
+import {
+    GmailClasses,
     InboxyClasses,
     Selectors,
+    LABEL_SET_SEPARATOR,
 } from '../util/Constants';
 
 const MAX_MESSAGE_COUNT = 25;
@@ -29,11 +31,17 @@ const MAX_MESSAGE_COUNT = 25;
 /**
  * Create a table row for a bundle, to be shown in the list of messages. 
  */
-function create(label, order, messages, hasUnread, toggleBundle, baseUrl) {
-    const displayedMessageCount = messages.length >= MAX_MESSAGE_COUNT 
-        ? `${MAX_MESSAGE_COUNT}+` 
+function create(label, order, messages, hasUnread, toggleBundle, baseUrl, labelColors) {
+    const displayedMessageCount = messages.length >= MAX_MESSAGE_COUNT
+        ? `${MAX_MESSAGE_COUNT}+`
         : messages.length;
     const unreadClass = hasUnread ? GmailClasses.UNREAD : GmailClasses.READ;
+
+    // A combined-label bundle's key is several labels joined; present them
+    // compactly (factoring any shared parent path). Single-label keys split to
+    // themselves (no separator present).
+    const labels = label.split(LABEL_SET_SEPARATOR);
+    const displayLabel = formatLabelSetTitle(labels);
 
     let spacerClass = '';
     if (document.querySelector(Selectors.IMPORTANCE_MARKER)) {
@@ -61,7 +69,7 @@ function create(label, order, messages, hasUnread, toggleBundle, baseUrl) {
             <td class="spacer ${GmailClasses.CELL} ${spacerClass}"></td>
             <td class="${GmailClasses.CELL} yX">
                 <div class="bundle-and-count">
-                    <span>${label}</span>
+                    <span>${displayLabel}</span>
                     <span class="bundle-count">(${displayedMessageCount})</span>
                 </div>
             </td>
@@ -78,11 +86,13 @@ function create(label, order, messages, hasUnread, toggleBundle, baseUrl) {
     const bulkArchiveTd = DomUtils.htmlToElement(`<td class="${GmailClasses.CELL}"></td>`);
     bulkArchiveTd.appendChild(bulkArchiveButton);
 
-    const labelUrl = label
-        .split(' ').join('-')
-        .split('/').join('%2F')
-        .split('&').join('-');
-    const url = `${baseUrl}#search/label%3AInbox+label%3A${labelUrl}`;
+    const labelQuery = labels
+        .map(l => 'label%3A' + l
+            .split(' ').join('-')
+            .split('/').join('%2F')
+            .split('&').join('-'))
+        .join('+');
+    const url = `${baseUrl}#search/label%3AInbox+${labelQuery}`;
     const viewAllButtonHtml = `
         <td class="${GmailClasses.CELL}">
             <a 
@@ -110,16 +120,32 @@ function create(label, order, messages, hasUnread, toggleBundle, baseUrl) {
     el.appendChild(DomUtils.htmlToElement(viewAllButtonHtml));
 
     el.addEventListener('click', e => {
-        if (!e.target.matches(`.${InboxyClasses.VIEW_ALL_LINK}`) && 
-            !e.target.matches('.view-all')) 
+        if (!e.target.matches(`.${InboxyClasses.VIEW_ALL_LINK}`) &&
+            !e.target.matches('.view-all'))
         {
             toggleBundle(label);
         }
-        
+
         // Don't propagate to handler for click-outside to close bundle
         e.stopPropagation();
     });
     el.style.order = order;
+
+    if (labelColors) {
+        el.classList.add(InboxyClasses.LABEL_COLORED);
+        el.style.setProperty('--inboxy-label-bg', labelColors.background);
+        if (labelColors.color) {
+            el.style.setProperty('--inboxy-label-fg', labelColors.color);
+        }
+        if (labelColors.accent) {
+            el.style.setProperty('--inboxy-label-accent', labelColors.accent);
+        }
+        // Gray/neutral theme-matched bundles blend more strongly so their fill
+        // stands out from the theme background instead of matching it.
+        if (labelColors.neutral) {
+            el.style.setProperty('--inboxy-label-mix', '42%');
+        }
+    }
 
     return el;
 }

@@ -31,12 +31,14 @@ import {
 import { 
     GmailClasses,
     InboxyClasses,
-    Selectors, 
+    Selectors,
     TableBodySelectors,
-    ORDER_INCREMENT, 
+    ORDER_INCREMENT,
     Element,
+    LABEL_SET_SEPARATOR,
 } from '../util/Constants';
 import DomUtils from '../util/DomUtils';
+import { detectThemeFlavor, flavorBase, snapToAccent, isNeutral } from '../util/ThemePalette';
 
 /**
  * Groups messages into bundles, and renders those bundles.
@@ -50,9 +52,23 @@ class Bundler {
         this.messageSelectHandler = new MessageSelectHandler(bundledMail, selectiveBundling);
         this.inboxyStyler = new InboxyStyler(bundledMail);
         this.quickSelectHandler = new QuickSelectHandler();
-        chrome.storage.sync.get(['groupMessagesByDate'], ({ groupMessagesByDate = true }) => {
-            this.groupMessagesByDate = groupMessagesByDate;
-        });
+        chrome.storage.sync.get(
+            ['groupMessagesByDate', 'colorBundlesByLabel', 'bundleColorStyle', 'matchStylusCatppuccin', 'skipSingleItemBundles'],
+            ({
+                groupMessagesByDate = true,
+                colorBundlesByLabel = true,
+                bundleColorStyle = 'background',
+                matchStylusCatppuccin = false,
+                skipSingleItemBundles = true,
+            }) => {
+                this.groupMessagesByDate = groupMessagesByDate;
+                this.colorBundlesByLabel = colorBundlesByLabel;
+                this.matchStylusCatppuccin = matchStylusCatppuccin;
+                this.skipSingleItemBundles = skipSingleItemBundles;
+                document.querySelector('html').classList.toggle(
+                    InboxyClasses.LABEL_COLOR_ACCENT,
+                    colorBundlesByLabel && bundleColorStyle === 'accent');
+            });
     }
 
     /**
@@ -111,9 +127,20 @@ class Bundler {
         document.querySelector('html').classList.add(InboxyClasses.INBOXY);
         tableBody.classList.add('flex-table-body');
 
+        this._detectTheme();
+
         const messageNodes = [...tableBody.querySelectorAll(TableBodySelectors.MESSAGE_NODES)];
 
         const bundlesByLabel = this._groupByLabel(messageNodes);
+
+        if (this.skipSingleItemBundles) {
+            for (const label in bundlesByLabel) {
+                if (bundlesByLabel[label].getMessages().length === 1) {
+                    delete bundlesByLabel[label];
+                }
+            }
+        }
+
         const sortedTableRows = this._calculateSortedTableRows(messageNodes, bundlesByLabel);
         
         const bundleRowsByLabel = this._drawTableRows(sortedTableRows, tableBody);
@@ -191,7 +218,10 @@ class Bundler {
             const message = messageNodes[i];
             const messageLabels = this.selectiveBundling.findRelevantLabels(message);
 
-            if (messageLabels.length === 0 || this._isStarred(message)) {
+            // Labels whose bundle was pruned (e.g. single-item) fall through to unbundled.
+            const bundlableLabels = messageLabels.filter(l => bundlesByLabel[l]);
+
+            if (bundlableLabels.length === 0 || this._isStarred(message)) {
                 rows.push({
                     element: message,
                     type: Element.UNBUNDLED_MESSAGE,
@@ -199,8 +229,8 @@ class Bundler {
                 continue;
             }
 
-            messageLabels.forEach(l => {
-                if (!labels.has(l) && bundlesByLabel[l]) {
+            bundlableLabels.forEach(l => {
+                if (!labels.has(l)) {
                     rows.push({
                         element: bundlesByLabel[l],
                         type: Element.BUNDLE,
@@ -285,19 +315,88 @@ class Bundler {
     _drawBundleRow(bundle, order, tableBody, baseUrl) {
         const messages = bundle.getMessages();
         const hasUnreadMessages = messages.some(this._isUnreadMessage);
+        const labelColors = this.colorBundlesByLabel
+            ? this._findLabelColors(bundle.getLabel(), messages)
+            : null;
 
         const bundleRow = BundleRow.create(
-            bundle.getLabel(), 
-            order, 
+            bundle.getLabel(),
+            order,
             messages,
-            hasUnreadMessages, 
+            hasUnreadMessages,
             this.bundleToggler.toggleBundle,
-            baseUrl);
+            baseUrl,
+            labelColors);
         tableBody.appendChild(bundleRow);
 
         messages.forEach(m => m.classList.add(InboxyClasses.BUNDLED_MESSAGE));
 
         return bundleRow;
+    }
+
+    /**
+     * When the opt-in Catppuccin matching is enabled, detect the active flavor
+     * of a Catppuccin userstyle (Stylus) from the injected <style class="stylus">
+     * elements, so bundle colors can be snapped to its palette. Left null (no
+     * matching) when the option is off or no Catppuccin theme is present.
+     */
+    _detectTheme() {
+        const html = document.querySelector('html');
+        if (!this.matchStylusCatppuccin) {
+            this.themeFlavor = null;
+            html.style.removeProperty('--inboxy-fill-base');
+            return;
+        }
+
+        const themeCss = [...document.querySelectorAll('style.stylus')]
+            .map(s => s.textContent)
+            .join('\n');
+        // Choose light vs dark flavor from Gmail's own theme, which drives the
+        // visible appearance (more reliable than prefers-color-scheme, which can
+        // disagree when Gmail is set light on a dark OS or vice versa).
+        const isDark = html.classList.contains(InboxyClasses.MESSAGES_DARK_THEME);
+        this.themeFlavor = detectThemeFlavor(themeCss, isDark);
+
+        if (this.themeFlavor) {
+            html.style.setProperty('--inboxy-fill-base', flavorBase(this.themeFlavor));
+        }
+        else {
+            html.style.removeProperty('--inboxy-fill-base');
+        }
+    }
+
+    /**
+     * Find the Gmail label color for a bundle, by checking its messages until a
+     * colored label chip is found. Returns { background, color, accent } or null.
+     * With Catppuccin matching active, colors are snapped to the theme palette.
+     */
+    _findLabelColors(label, messages) {
+        // For a combined-label bundle the key is several labels joined; color by
+        // the first one. Single-label keys split to themselves (no separator).
+        const firstLabel = label.split(LABEL_SET_SEPARATOR)[0];
+        for (const message of messages) {
+            const colors = DomUtils.getLabelColors(message, firstLabel);
+            if (colors) {
+                if (this.themeFlavor) {
+                    // Snap Gmail's label color to the nearest theme accent so the
+                    // bundle looks native to the userstyle's palette. Gray labels
+                    // map to a neutral tone; flag them so the fill blends more
+                    // strongly and doesn't disappear into the theme background.
+                    colors.neutral = isNeutral(colors.background);
+                    const accent = snapToAccent(colors.background, this.themeFlavor);
+                    colors.background = accent;
+                    colors.color = accent;
+                    colors.accent = accent;
+                }
+                else {
+                    const isDarkTheme = document.querySelector('html')
+                        .classList.contains(InboxyClasses.MESSAGES_DARK_THEME);
+                    colors.accent = DomUtils.pickAccentColor(colors, isDarkTheme);
+                }
+                return colors;
+            }
+        }
+        return null;
     }
 
     _isUnreadMessage(message) {

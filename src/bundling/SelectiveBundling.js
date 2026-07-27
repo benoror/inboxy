@@ -15,29 +15,60 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import DomUtils from '../util/DomUtils';
+import { LABEL_SET_SEPARATOR } from '../util/Constants';
+import { matchLabelPattern, parsePriorityRules, ruleMatchesLabels, ruleLabels } from '../util/LabelSet';
 
 /**
  * Identifies the labels that have bundling enabled, according to the user's options.
  * By default, all labels are bundled.
+ *
+ * The include/exclude list matches labels case-insensitively. Each entry is a
+ * pattern: a plain label matches exactly, while a trailing '/*' matches that
+ * label and its whole sub-label subtree (any depth) — e.g. 'Newsletters/*'.
  */
 class SelectiveBundling {
     constructor() {
         const self = this;
-        chrome.storage.sync.get(['exclude', 'labels'], ({ exclude = true, labels = [] }) => {
-            self.exclude = exclude;
-            self.labels = new Set(labels.map(s => s.toLowerCase()));
-        });
+        this.priorityRules = [];
+        chrome.storage.sync.get(
+            ['exclude', 'labels', 'combineLabels', 'priorityBundles'],
+            ({ exclude = true, labels = [], combineLabels = true, priorityBundles = [] }) => {
+                self.exclude = exclude;
+                self.labels = labels.map(s => s.trim()).filter(Boolean);
+                self.combineLabels = combineLabels;
+                self.priorityRules = parsePriorityRules(priorityBundles);
+            });
     }
 
+    /**
+     * Returns the bundle key(s) a message belongs to. Normally this is the list
+     * of its bundling-enabled labels (one bundle per label). When combineLabels
+     * is on, the whole set of labels is joined into a single key, so a distinct
+     * combination of labels forms its own bundle.
+     *
+     * Priority rules take precedence: if the message matches one (checked top to
+     * bottom, first match wins), that rule becomes its sole bundle, overriding
+     * both the include/exclude gate and set-grouping. This lets specific labels
+     * (or label sets) always group together, regardless of other labels present.
+     */
     findRelevantLabels(message) {
         const messageLabels = DomUtils.getLabelStrings(message);
 
-        if (this.exclude) {
-            return messageLabels.filter(l => !this.labels.has(l.toLowerCase()));
+        for (const rule of this.priorityRules) {
+            if (ruleMatchesLabels(rule, messageLabels)) {
+                return [ruleLabels(rule).join(LABEL_SET_SEPARATOR)];
+            }
         }
-        else {
-            return messageLabels.filter(l => this.labels.has(l.toLowerCase()));
+
+        const inList = l => this.labels.some(pattern => matchLabelPattern(pattern, l));
+        const relevant = this.exclude
+            ? messageLabels.filter(l => !inList(l))
+            : messageLabels.filter(l => inList(l));
+
+        if (this.combineLabels) {
+            return relevant.length ? [relevant.join(LABEL_SET_SEPARATOR)] : [];
         }
+        return relevant;
     }
 }
 

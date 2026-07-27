@@ -26,6 +26,11 @@ const ORDER_INCREMENT = 100;
 
 const NO_TAB = '__NO_TAB';
 
+// Joins the labels of a combined-label bundle into a single bundle key.
+// Uses the ASCII unit separator (0x1F), which never appears in a Gmail label, so splitting the
+// key back into its parts is unambiguous (and a no-op for single-label keys).
+const LABEL_SET_SEPARATOR = String.fromCharCode(31);
+
 const GmailClasses = {
     ARCHIVE_BUTTON: 'brq bqX',
     CELL: 'xY',
@@ -46,9 +51,13 @@ const InboxyClasses = {
     BUNDLE_ROW: 'bundle-row',
     BUNDLED_MESSAGE: 'bundled-message',
     DARK_THEME: 'dark-theme',
+    HIDE_BUNDLE_ARCHIVE: 'hide-bundle-archive',
+    HIDE_PINNED_TOGGLE: 'hide-pinned-toggle',
     MESSAGES_DARK_THEME: 'messages-dark-theme',
     MESSAGES_DEFAULT_THEME: 'messages-default-theme',
     INBOXY: 'inboxy',
+    LABEL_COLORED: 'label-colored',
+    LABEL_COLOR_ACCENT: 'label-color-accent',
     LAST: 'last',
     SHOW_PINNED_TOGGLE: 'show-pinned-toggle',
     VIEW_ALL_LINK: 'view-all-link',
@@ -112,9 +121,10 @@ const Element = {
     UNBUNDLED_MESSAGE: 3,
 };
 
-export { 
-    ORDER_INCREMENT, 
+export {
+    ORDER_INCREMENT,
     NO_TAB,
+    LABEL_SET_SEPARATOR,
     GmailClasses, 
     InboxyClasses,
     Selectors, 

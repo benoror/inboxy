@@ -14,20 +14,39 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-const PLACEHOLDER = 'Add the name of each bundle on a new line, for example:\n\nBank\nSchool\nAppointments';
+const PLACEHOLDER = 'Add the name of each bundle on a new line, for example:\n\nBank\nSchool\nNewsletters/*';
+const PRIORITY_PLACEHOLDER = 'Add a priority rule on each line, for example:\n\nBank\nSchool/*\nWork + Urgent';
 
 function saveOptions() {
     const exclude = document.getElementById('exclude-radio').checked;
     const labelList = document.getElementById('label-list');
     const labels = labelList.value.split(/[\n]+/).map(s => s.trim()).filter(s => !!s);
     const groupMessagesByDate = document.getElementById('group-by-date-checkbox').checked;
+    const combineLabels = document.getElementById('combine-labels-checkbox').checked;
+    const priorityList = document.getElementById('priority-bundles-list');
+    const priorityBundles = priorityList.value.split(/[\n]+/).map(s => s.trim()).filter(s => !!s);
+    const skipSingleItemBundles = document.getElementById('skip-single-item-bundles-checkbox').checked;
+    const colorBundlesByLabel = document.getElementById('color-bundles-checkbox').checked;
+    const bundleColorStyle = document.querySelector('input[name="bundleColorStyle"]:checked').value;
+    const matchStylusCatppuccin = document.getElementById('catppuccin-matching-checkbox').checked;
+    const showPinnedToggle = document.getElementById('show-pinned-toggle-checkbox').checked;
+    const showBundleArchive = document.getElementById('show-bundle-archive-checkbox').checked;
 
     chrome.storage.sync.set({
         exclude: !!exclude,
         labels: labels,
         groupMessagesByDate: !!groupMessagesByDate,
+        combineLabels: !!combineLabels,
+        priorityBundles: priorityBundles,
+        skipSingleItemBundles: !!skipSingleItemBundles,
+        colorBundlesByLabel: !!colorBundlesByLabel,
+        bundleColorStyle: bundleColorStyle,
+        matchStylusCatppuccin: !!matchStylusCatppuccin,
+        showPinnedToggle: !!showPinnedToggle,
+        showBundleArchive: !!showBundleArchive,
     }, function() {
         labelList.value = labels.join('\n');
+        priorityList.value = priorityBundles.join('\n');
 
         const saveButton = document.getElementById('save-button');
         saveButton.classList.add('saved');
@@ -42,6 +61,14 @@ function restoreOptions() {
         exclude: true,
         labels: [],
         groupMessagesByDate: true,
+        combineLabels: true,
+        priorityBundles: [],
+        skipSingleItemBundles: true,
+        colorBundlesByLabel: true,
+        bundleColorStyle: 'background',
+        matchStylusCatppuccin: false,
+        showPinnedToggle: false,
+        showBundleArchive: false,
     }, function(items) {
         const id = items.exclude ? 'exclude-radio' : 'include-radio';
         document.getElementById(id).checked = true;
@@ -53,6 +80,21 @@ function restoreOptions() {
         }
 
         document.getElementById('group-by-date-checkbox').checked = items.groupMessagesByDate;
+        document.getElementById('combine-labels-checkbox').checked = items.combineLabels;
+        const priorityList = document.getElementById('priority-bundles-list');
+        priorityList.value = items.priorityBundles.join('\n');
+        priorityList.placeholder = PRIORITY_PLACEHOLDER;
+        document.getElementById('skip-single-item-bundles-checkbox').checked = items.skipSingleItemBundles;
+        document.getElementById('color-bundles-checkbox').checked = items.colorBundlesByLabel;
+
+        const styleId = items.bundleColorStyle === 'accent'
+            ? 'color-style-accent'
+            : 'color-style-background';
+        document.getElementById(styleId).checked = true;
+
+        document.getElementById('catppuccin-matching-checkbox').checked = items.matchStylusCatppuccin;
+        document.getElementById('show-pinned-toggle-checkbox').checked = items.showPinnedToggle;
+        document.getElementById('show-bundle-archive-checkbox').checked = items.showBundleArchive;
 
     });
 }

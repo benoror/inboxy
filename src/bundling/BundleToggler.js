@@ -119,9 +119,34 @@ class BundleToggler {
 
         const top = BundleToggler._calculateBundleAreaTop(bundle.getBundleRow());
         bundleArea.style.top = `${top}px`;
-        
+
         const height = BundleToggler._calculateBundleAreaHeight(bundle.getMessages());
         bundleArea.style.height = `${height}px`;
+
+        this._applyLabelColor(bundleArea, bundle.getBundleRow());
+    }
+
+    /**
+     * Carry the opened bundle's label color (stashed on its bundle row) onto the
+     * shared bundle area, so the color scheme surrounds the open threads too.
+     * When the bundle isn't label-colored, clear any color left from a previous open.
+     */
+    _applyLabelColor(bundleArea, bundleRow) {
+        if (bundleRow.classList.contains(InboxyClasses.LABEL_COLORED)) {
+            bundleArea.classList.add(InboxyClasses.LABEL_COLORED);
+            bundleArea.style.setProperty(
+                '--inboxy-label-bg', bundleRow.style.getPropertyValue('--inboxy-label-bg'));
+            bundleArea.style.setProperty(
+                '--inboxy-label-fg', bundleRow.style.getPropertyValue('--inboxy-label-fg'));
+            bundleArea.style.setProperty(
+                '--inboxy-label-accent', bundleRow.style.getPropertyValue('--inboxy-label-accent'));
+        }
+        else {
+            bundleArea.classList.remove(InboxyClasses.LABEL_COLORED);
+            bundleArea.style.removeProperty('--inboxy-label-bg');
+            bundleArea.style.removeProperty('--inboxy-label-fg');
+            bundleArea.style.removeProperty('--inboxy-label-accent');
+        }
     }
 
     static _calculateBundleAreaTop(bundleRow) {
