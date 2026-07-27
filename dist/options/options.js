@@ -97,8 +97,109 @@ function restoreOptions() {
         document.getElementById('show-bundle-archive-checkbox').checked = items.showBundleArchive;
 
     });
+
+    renderCustomBundles();
 }
+
+// Keep the custom-bundles list fresh if a bundle is created or changed in Gmail
+// (or synced from another device) while the options page is open.
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes[CUSTOM_BUNDLES_KEY]) {
+        renderCustomBundles();
+    }
+});
 document.getElementById('save-button').addEventListener('click', saveOptions);
+
+
+//
+// Custom bundles management
+//
+// Custom bundles are created in Gmail (select messages -> "Bundle selected").
+// Here we only list them and let the user rename or delete them. We read and
+// write chrome.storage.sync directly, matching the versioned shape the content
+// script's CustomBundles model persists: { v: 1, bundles: { name: [threadId] } }.
+
+const CUSTOM_BUNDLES_KEY = 'customBundles';
+
+function readCustomBundles(cb) {
+    chrome.storage.sync.get({ [CUSTOM_BUNDLES_KEY]: null }, result => {
+        const stored = result[CUSTOM_BUNDLES_KEY];
+        cb(stored && stored.bundles ? stored.bundles : {});
+    });
+}
+
+function writeCustomBundles(bundles, cb) {
+    chrome.storage.sync.set({ [CUSTOM_BUNDLES_KEY]: { v: 1, bundles } }, cb || (() => {}));
+}
+
+function renderCustomBundles() {
+    readCustomBundles(bundles => {
+        const list = document.getElementById('custom-bundles-list');
+        const empty = document.getElementById('custom-bundles-empty');
+        list.innerHTML = '';
+
+        const names = Object.keys(bundles).sort((a, b) => a.localeCompare(b));
+        empty.style.display = names.length ? 'none' : 'block';
+
+        for (const name of names) {
+            const count = bundles[name].length;
+            const li = document.createElement('li');
+            li.className = 'custom-bundle-item';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'custom-bundle-name';
+            nameSpan.textContent = name;
+
+            const countSpan = document.createElement('span');
+            countSpan.className = 'custom-bundle-count';
+            countSpan.textContent = `${count} message${count === 1 ? '' : 's'}`;
+
+            const renameButton = document.createElement('button');
+            renameButton.className = 'custom-bundle-action';
+            renameButton.textContent = 'Rename';
+            renameButton.addEventListener('click', () => renameCustomBundle(name));
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'custom-bundle-action custom-bundle-delete';
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', () => deleteCustomBundle(name));
+
+            li.appendChild(nameSpan);
+            li.appendChild(countSpan);
+            li.appendChild(renameButton);
+            li.appendChild(deleteButton);
+            list.appendChild(li);
+        }
+    });
+}
+
+function renameCustomBundle(name) {
+    const to = (window.prompt(`Rename custom bundle "${name}" to:`, name) || '').trim();
+    if (!to || to === name) {
+        return;
+    }
+    readCustomBundles(bundles => {
+        if (!bundles[name]) {
+            return;
+        }
+        // Merge into an existing target if the new name is already taken.
+        const merged = new Set([...(bundles[to] || []), ...bundles[name]]);
+        delete bundles[name];
+        bundles[to] = [...merged];
+        writeCustomBundles(bundles, renderCustomBundles);
+    });
+}
+
+function deleteCustomBundle(name) {
+    if (!window.confirm(
+        `Delete the custom bundle "${name}"? The messages themselves aren't affected.`)) {
+        return;
+    }
+    readCustomBundles(bundles => {
+        delete bundles[name];
+        writeCustomBundles(bundles, renderCustomBundles);
+    });
+}
 
 
 //

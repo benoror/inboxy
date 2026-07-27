@@ -436,3 +436,60 @@ input:checked + .slider:before {
   -ms-transform: translateX(13px);
   transform: translateX(13px);
 }
+/* Custom bundles management list */
+.custom-bundles-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 12px 0;
+}
+
+.custom-bundle-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid #cceef3;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background-color: #fafafa;
+}
+
+.custom-bundle-name {
+    font-weight: 600;
+    color: #345255;
+}
+
+.custom-bundle-count {
+    color: #757575;
+    font-size: 13px;
+    margin-right: auto;
+}
+
+.custom-bundle-action {
+    border: 1px solid #00acc1;
+    background-color: #fff;
+    color: #007C8E;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.custom-bundle-action:hover {
+    background-color: #cceef3;
+}
+
+.custom-bundle-delete {
+    border-color: #d9534f;
+    color: #d9534f;
+}
+
+.custom-bundle-delete:hover {
+    background-color: #f9e2e1;
+}
+
+.custom-bundles-empty {
+    color: #757575;
+    font-style: italic;
+}
