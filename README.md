@@ -20,6 +20,11 @@ your inbox.
 * Priority bundles: force chosen labels (or label sets) to always group
   together regardless of a thread's other labels — e.g. `Bank`, `School/*`
   (subtree), or `Work + Urgent`; first matching rule wins (configure in Options)
+* Custom bundles: select any messages in Gmail and click the floating
+  "Bundle selected" button to group them on the fly — no Gmail label needed.
+  Custom bundles override label-based grouping, stick across reloads, and sync
+  to your other signed-in Chrome browsers. Manage or delete them under
+  Options → Custom bundles
 * Single-item bundles are skipped by default, shown as regular messages
 * Archive all bundled messages on the current page quickly
 * Star a message to pin it outside of its bundle
