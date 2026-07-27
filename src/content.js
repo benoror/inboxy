@@ -20,9 +20,10 @@ import DateGrouper from './bundling/DateGrouper';
 import SelectiveBundling from './bundling/SelectiveBundling';
 
 import BundledMail from './containers/BundledMail';
-import CustomBundles from './containers/CustomBundles';
+import CustomBundles, { STORAGE_KEY as CUSTOM_BUNDLES_KEY } from './containers/CustomBundles';
 
 import PinnedToggle from './components/PinnedToggle';
+import SelectionBundleControl from './components/SelectionBundleControl';
 
 import TabPanelsObserver from './handlers/TabPanelsObserver';
 import MessageListObserver from './handlers/MessageListObserver';
@@ -94,6 +95,7 @@ const bundledMail = new BundledMail();
 const bundleToggler = new BundleToggler(bundledMail);
 const customBundles = new CustomBundles();
 const selectiveBundling = new SelectiveBundling(customBundles);
+const selectionBundleControl = new SelectionBundleControl(customBundles);
 const bundler = new Bundler(bundleToggler, bundledMail, messageListWatcher, selectiveBundling);
 const starHandler = new StarHandler(bundledMail, selectiveBundling);
 const dateGrouper = new DateGrouper();
@@ -140,6 +142,20 @@ document.addEventListener('mousedown', e => {
         e.target.matches(`.${InboxyClasses.BUNDLED_MESSAGE} *`)) 
     {
         handleBundleInteraction(e);
+    }
+});
+
+
+// Re-bundle when custom bundles change — whether from this tab's own edits, or
+// synced in from another signed-in Chrome instance. Refreshing lets Gmail
+// rebuild the message list, which re-runs bundling with the new membership.
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes[CUSTOM_BUNDLES_KEY]) {
+        customBundles.applyStoredValue(changes[CUSTOM_BUNDLES_KEY].newValue);
+        selectionBundleControl.update();
+        if (supportsBundling(window.location.href)) {
+            refreshInbox();
+        }
     }
 });
 
@@ -205,6 +221,22 @@ function startObservers() {
     mainParentObserver.observe();
     tabPanelsObserver.observe();
     messageListObserver.observe();
+    selectionBundleControl.attach();
+}
+
+/**
+ * Trigger Gmail's own inbox refresh, which rebuilds the message list and causes
+ * inboxy to re-bundle. Used after custom bundle membership changes.
+ */
+function refreshInbox() {
+    const refresh = document.querySelector(Selectors.REFRESH);
+    if (!refresh) {
+        return;
+    }
+    ['mouseover', 'mousedown', 'click', 'mouseup'].forEach(name => {
+        refresh.dispatchEvent(
+            new MouseEvent(name, { view: window, bubbles: true, cancelable: true }));
+    });
 }
 
 function addPinnedToggle() {
