@@ -1,7 +1,7 @@
 {
-  "name": "inboxy",
+  "name": "inbundly",
   "version": "2.1.0",
-  "description": "GPL-3.0-only",
+  "description": "Inbundly — Google Inbox-style bundles for Gmail. A maintained fork of teresa-ou/inboxy.",
   "private": true,
   "scripts": {
     "test": "jest",
@@ -13,7 +13,10 @@
   },
   "keywords": [],
   "author": "Teresa Ou",
-  "license": "GPL",
+  "contributors": [
+    "Ben Orozco"
+  ],
+  "license": "GPL-3.0-only",
   "devDependencies": {
     "@babel/core": "^7.18.9",
     "@babel/plugin-transform-modules-commonjs": "^7.9.6",
