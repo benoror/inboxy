@@ -1,6 +1,6 @@
 {
   "name": "inbundly",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Inbundly — Google Inbox-style bundles for Gmail. A maintained fork of teresa-ou/inboxy.",
   "private": true,
   "scripts": {

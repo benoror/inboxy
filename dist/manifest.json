@@ -1,6 +1,6 @@
 {
     "name": "Inbundly – Inbox Bundles for Gmail",
-    "version": "2.1.0",
+    "version": "3.0.0",
     "description": "Bring Google Inbox-style bundles to Gmail: auto-group emails by label into tidy, collapsible bundles. Organize your inbox, fast.",
     "homepage_url": "https://inbundly.com",
     "background": {
