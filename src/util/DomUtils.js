@@ -38,6 +38,16 @@ const DomUtils = {
     },
 
     /**
+     * Read Gmail's stable thread id for a message row, or null if absent
+     * (e.g. inboxy's own injected bundle rows carry no thread id). This id is
+     * durable across reloads, so it's used to persist custom bundle membership.
+     */
+    getThreadId: function(message) {
+        const node = message.querySelector(Selectors.THREAD_ID);
+        return node ? node.getAttribute('data-legacy-thread-id') : null;
+    },
+
+    /**
      * Read the color that Gmail assigns to a label, by inspecting the label chip
      * matching labelTitle within the given message row.
      *

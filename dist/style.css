@@ -668,3 +668,42 @@ html.inboxy.show-pinned-toggle.simpl.hideSearch.appSwitcher #gb form {
     display: block;
     visibility: hidden;
 }
+/**
+ * Floating control for bundling the currently selected messages into an ad-hoc
+ * custom bundle. Hidden until at least one message is selected.
+ */
+.inboxy-bundle-selected {
+    display: none;
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 2000;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 22px;
+    background-color: #1a73e8;
+    color: #fff;
+    font: 500 14px/1 'Google Sans', Roboto, Arial, sans-serif;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
+}
+.inboxy-bundle-selected.visible {
+    display: inline-flex;
+}
+.inboxy-bundle-selected:hover {
+    background-color: #2b7de9;
+    box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.2);
+}
+.inboxy-bundle-selected-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+html.inboxy.messages-dark-theme .inboxy-bundle-selected {
+    background-color: #8ab4f8;
+    color: #202124;
+}
+html.inboxy.messages-dark-theme .inboxy-bundle-selected:hover {
+    background-color: #9cc0fa;
+}

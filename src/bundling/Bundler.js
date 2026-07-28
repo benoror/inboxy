@@ -38,6 +38,7 @@ import {
     LABEL_SET_SEPARATOR,
 } from '../util/Constants';
 import DomUtils from '../util/DomUtils';
+import { isCustomBundleKey } from '../util/CustomBundleKey';
 import { detectThemeFlavor, flavorBase, snapToAccent, isNeutral } from '../util/ThemePalette';
 
 /**
@@ -135,7 +136,10 @@ class Bundler {
 
         if (this.skipSingleItemBundles) {
             for (const label in bundlesByLabel) {
-                if (bundlesByLabel[label].getMessages().length === 1) {
+                // A custom bundle is explicit user intent, so keep it even with a
+                // single message; only auto-derived (label) bundles are pruned.
+                if (bundlesByLabel[label].getMessages().length === 1 &&
+                    !isCustomBundleKey(label)) {
                     delete bundlesByLabel[label];
                 }
             }

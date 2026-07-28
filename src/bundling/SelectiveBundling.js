@@ -27,8 +27,14 @@ import { matchLabelPattern, parsePriorityRules, ruleMatchesLabels, ruleLabels } 
  * label and its whole sub-label subtree (any depth) — e.g. 'Newsletters/*'.
  */
 class SelectiveBundling {
-    constructor() {
+    /**
+     * @param customBundles optional CustomBundles instance. When present, a
+     *   message's membership in a user-defined custom bundle overrides all
+     *   label-based grouping.
+     */
+    constructor(customBundles = null) {
         const self = this;
+        this.customBundles = customBundles;
         this.priorityRules = [];
         chrome.storage.sync.get(
             ['exclude', 'labels', 'combineLabels', 'priorityBundles'],
@@ -46,12 +52,23 @@ class SelectiveBundling {
      * is on, the whole set of labels is joined into a single key, so a distinct
      * combination of labels forms its own bundle.
      *
-     * Priority rules take precedence: if the message matches one (checked top to
+     * A custom bundle takes precedence over everything: if the message's thread
+     * has been placed in a user-defined custom bundle, that bundle is its sole
+     * bundle, overriding priority rules, the include/exclude gate, and grouping.
+     *
+     * Priority rules come next: if the message matches one (checked top to
      * bottom, first match wins), that rule becomes its sole bundle, overriding
      * both the include/exclude gate and set-grouping. This lets specific labels
      * (or label sets) always group together, regardless of other labels present.
      */
     findRelevantLabels(message) {
+        if (this.customBundles) {
+            const customKey = this.customBundles.keyForThread(DomUtils.getThreadId(message));
+            if (customKey) {
+                return [customKey];
+            }
+        }
+
         const messageLabels = DomUtils.getLabelStrings(message);
 
         for (const rule of this.priorityRules) {

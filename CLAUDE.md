@@ -27,8 +27,9 @@ Gmail's DOM and restructuring the message list into collapsible bundles by label
   - `handlers/` — `MutationObserver`-based watchers that react to Gmail navigation,
     rerenders, starring, and theme changes.
   - `components/` — DOM builders for injected UI (bundle rows, dividers, toggles, the
-    bulk-archive button).
-  - `containers/` — in-memory models of the bundled mail state.
+    bulk-archive button, the floating "Bundle selected" custom-bundle control).
+  - `containers/` — in-memory models of the bundled mail state (`BundledMail`,
+    `Bundle`, and `CustomBundles` — the persisted, thread-id-keyed custom bundles).
   - `util/` — `Constants.js` (Gmail DOM selectors + inboxy CSS classes) and DOM helpers.
 - `dist/` — the loadable unpacked extension. Contains committed static assets
   (`manifest.json`, `style.css`, `background.js`, `popup/`, `options/`, `icons/`,
@@ -98,4 +99,14 @@ Flow for landing a feature branch and cutting a release:
 - `src/content.js` has a `DEBUG` flag that logs `inboxy-debug:` messages to the console.
 - Gmail ships no stable API; the extension depends on DOM selectors in
   `src/util/Constants.js`. Gmail markup changes are the usual cause of breakage.
+- **Custom bundles** (ad-hoc groupings with no Gmail label) are keyed by Gmail's
+  stable `data-legacy-thread-id` (read via `DomUtils.getThreadId`) and persisted
+  in `chrome.storage.sync` by `containers/CustomBundles.js`. Their bundle key is
+  the user's name prefixed with `0x1E` (`util/CustomBundleKey.js`) so it flows
+  through the label-keyed pipeline without colliding with a real label or a
+  combined-label (`0x1F`) key. `SelectiveBundling` checks custom membership first
+  (custom wins over priority rules and labels). Membership changes trigger a
+  Gmail refresh (via `chrome.storage.onChanged` in `content.js`) so bundling
+  re-runs; this same path applies changes synced from other devices. `options/`
+  reads/writes the same storage key directly for management.
 - Versioning, tags, and releases are covered under **Releasing** above.
