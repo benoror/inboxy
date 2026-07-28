@@ -11,7 +11,8 @@ Guidance for Claude Code when working in this repository.
 
 ## What this is
 
-`inboxy` is a Manifest V3 browser extension (Chrome + Firefox) that recreates Google
+**Inbundly** (package `inbundly`; the GitHub repo remains `benoror/inboxy`) is a Manifest V3
+browser extension (Chrome + Firefox) that recreates Google
 Inbox-style bundles in Gmail. It's a fork of
 [teresa-ou/inboxy](https://github.com/teresa-ou/inboxy) — the upstream project is no
 longer actively maintained. Licensed GPL-3.0.
@@ -23,14 +24,14 @@ Gmail's DOM and restructuring the message list into collapsible bundles by label
 
 - `src/` — all editable JavaScript source (ES modules). Entry point: `src/content.js`.
   - `bundling/` — core logic that groups messages into bundles and toggles them
-    (`Bundler`, `BundleToggler`, `DateGrouper`, `SelectiveBundling`, `InboxyStyler`).
+    (`Bundler`, `BundleToggler`, `DateGrouper`, `SelectiveBundling`, `InbundlyStyler`).
   - `handlers/` — `MutationObserver`-based watchers that react to Gmail navigation,
     rerenders, starring, and theme changes.
   - `components/` — DOM builders for injected UI (bundle rows, dividers, toggles, the
     bulk-archive button, the floating "Bundle selected" custom-bundle control).
   - `containers/` — in-memory models of the bundled mail state (`BundledMail`,
     `Bundle`, and `CustomBundles` — the persisted, thread-id-keyed custom bundles).
-  - `util/` — `Constants.js` (Gmail DOM selectors + inboxy CSS classes) and DOM helpers.
+  - `util/` — `Constants.js` (Gmail DOM selectors + Inbundly CSS classes) and DOM helpers.
 - `dist/` — the loadable unpacked extension. Contains committed static assets
   (`manifest.json`, `style.css`, `background.js`, `popup/`, `options/`, `icons/`,
   `assets/`) plus the webpack-built `content.js`.
@@ -56,7 +57,7 @@ npm test          # Jest tests
 2. **Load unpacked** → select the `dist/` folder.
 3. Open `mail.google.com`.
 
-After a rebuild: click **reload ↻** on the inboxy card in `chrome://extensions`, then
+After a rebuild: click **reload ↻** on the Inbundly card in `chrome://extensions`, then
 refresh Gmail.
 
 ## Releasing
@@ -92,7 +93,7 @@ Flow for landing a feature branch and cutting a release:
 2. **Release commit on `master`** (after merge): bump the version in both
    `dist/manifest.json` and `package.json`, add the `CHANGELOG.md` section, commit as
    `Release vX.Y.Z`.
-3. **Tag & push:** `git tag -a vX.Y.Z -m "inboxy vX.Y.Z (benoror fork)" && git push origin vX.Y.Z`.
+3. **Tag & push:** `git tag -a vX.Y.Z -m "Inbundly vX.Y.Z (benoror fork)" && git push origin vX.Y.Z`.
 4. **GitHub Release:** `gh release create vX.Y.Z --repo benoror/inboxy --latest --notes-file <notes>`
    (notes = that version's changelog section).
 
@@ -102,7 +103,7 @@ Flow for landing a feature branch and cutting a release:
 
 ## Notes
 
-- `src/content.js` has a `DEBUG` flag that logs `inboxy-debug:` messages to the console.
+- `src/content.js` has a `DEBUG` flag that logs `inbundly-debug:` messages to the console.
 - Gmail ships no stable API; the extension depends on DOM selectors in
   `src/util/Constants.js`. Gmail markup changes are the usual cause of breakage.
 - **Custom bundles** (ad-hoc groupings with no Gmail label) are keyed by Gmail's
