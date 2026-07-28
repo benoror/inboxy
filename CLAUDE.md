@@ -66,8 +66,14 @@ This fork runs its **own release line**, independent of upstream teresa-ou/inbox
 
 Conventions:
 
-- **Semantic versioning**, tags prefixed `v` (e.g. `v2.0.0`). `package.json` and
-  `dist/manifest.json` share one version — always bump them together.
+- **Semantic versioning** per [semver.org](https://semver.org/spec/v2.0.0.html), tags
+  prefixed `v` (e.g. `v2.0.0`). `package.json` and `dist/manifest.json` share one version
+  — always bump them together. Choose the bump from what the release contains, not by
+  habit: **MAJOR** for backwards-incompatible changes (e.g. dropping/renaming an option or
+  storage key, removing a feature), **MINOR** for backwards-compatible new functionality
+  (a new feature or option), **PATCH** for backwards-compatible bug fixes only. When a
+  release mixes categories, take the highest that applies. If unsure whether a change is
+  breaking, ask before tagging.
 - The **manifest version is what ships** and Chrome requires plain dotted integers
   (1–4 groups, each 0–65535); **no** pre-release suffixes like `-beta` there. Tags/release
   names may be richer, but keep the numeric core in sync with the manifest.

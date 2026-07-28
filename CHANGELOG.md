@@ -8,6 +8,22 @@ independent of upstream's versioning. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-07-27
+
+### Added
+- **Custom bundles** — select any messages in Gmail and click the floating
+  "Bundle selected" button to group them on the fly, with no Gmail label required.
+  Custom bundles override label-based grouping, are kept even when they hold a single
+  message, stick across reloads, and sync to your other signed-in Chrome browsers.
+  Selecting messages already in a bundle turns the button into "Remove from bundle".
+  Manage (rename/delete) them under Options → Custom bundles.
+  - Keyed by Gmail's stable `data-legacy-thread-id` and persisted in
+    `chrome.storage.sync` (`containers/CustomBundles.js`); the bundle key is the user's
+    name prefixed with `0x1E` so it flows through the label-keyed pipeline without
+    colliding with a real label or a combined-label (`0x1F`) key.
+
+[2.1.0]: https://github.com/benoror/inboxy/releases/tag/v2.1.0
+
 ## [2.0.0] - 2026-07-27
 
 First feature release of the fork. Forked from upstream v1.6.5 and brings Gmail bundling
