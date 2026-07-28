@@ -48,7 +48,7 @@ const GmailClasses = {
     UNREAD_SENDER: 'zF',
 };
 
-const InboxyClasses = {
+const InbundlyClasses = {
     BUNDLE_ROW: 'bundle-row',
     BUNDLED_MESSAGE: 'bundled-message',
     DARK_THEME: 'dark-theme',
@@ -56,7 +56,7 @@ const InboxyClasses = {
     HIDE_PINNED_TOGGLE: 'hide-pinned-toggle',
     MESSAGES_DARK_THEME: 'messages-dark-theme',
     MESSAGES_DEFAULT_THEME: 'messages-default-theme',
-    INBOXY: 'inboxy',
+    INBUNDLY: 'inbundly',
     LABEL_COLORED: 'label-colored',
     LABEL_COLOR_ACCENT: 'label-color-accent',
     LAST: 'last',
@@ -75,7 +75,7 @@ const Selectors = {
     CURRENT_TAB: `${MAIN} [role="tab"][aria-selected="true"]`,
     CURRENT_TABPANEL: CURRENT_TABPANEL,
     INBOX_LABEL: `${LABELS}[title="Inbox"]`,
-    INBOXY: `.${InboxyClasses.INBOXY}`,
+    INBUNDLY: `.${InbundlyClasses.INBUNDLY}`,
     LABEL_CONTAINERS: '.ar.as',
     LABELS: LABELS,
     IMPORTANCE_MARKER: `.${GmailClasses.ROW} .${GmailClasses.IMPORTANCE_MARKER}`,
@@ -95,7 +95,7 @@ const Selectors = {
     REFRESH: '.T-I.J-J5-Ji[act="20"]',
     SAMPLE_MESSAGE: `${POSSIBLE_MESSAGE_LISTS} tr.${GmailClasses.ROW}.${GmailClasses.READ}:not(.bundled-message):not(.btb)`,
     SEARCH_FORM: '#gb form',
-    SELECTED: `${CURRENT_TABPANEL} tr.${GmailClasses.SELECTED}:not(.${InboxyClasses.BUNDLE_ROW})`,
+    SELECTED: `${CURRENT_TABPANEL} tr.${GmailClasses.SELECTED}:not(.${InbundlyClasses.BUNDLE_ROW})`,
     SENDERS: '.yX.xY .yW .bA4 span[email]',
     SCROLLABLE_CONTAINER: '.Tm.aeJ',
     SIDEPANE_TEXT: '.TO .nU',
@@ -132,7 +132,7 @@ export {
     NO_TAB,
     LABEL_SET_SEPARATOR,
     GmailClasses, 
-    InboxyClasses,
+    InbundlyClasses,
     Selectors, 
     TableBodySelectors,
     Urls,

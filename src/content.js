@@ -34,7 +34,7 @@ import StarHandler from './handlers/StarHandler';
 import ThemeChangeHandler from './handlers/ThemeChangeHandler';
 
 import { 
-    InboxyClasses,
+    InbundlyClasses,
     Selectors,
 } from './util/Constants';
 import { 
@@ -45,22 +45,22 @@ import {
 const DEBUG = true;
 const logDebugMessage = message => {
     if (DEBUG) {
-        console.log(`inboxy-debug: ${message}`);
+        console.log(`inbundly-debug: ${message}`);
     }
 };
 
 const html = document.querySelector('html');
 if (html) {
     logDebugMessage('Applying styles');
-    html.classList.add(InboxyClasses.INBOXY);
+    html.classList.add(InbundlyClasses.INBUNDLY);
 
     // The pinned-messages toggle and bulk-archive button are hidden by default;
     // opt in to them from the options page.
     chrome.storage.sync.get(
         { showPinnedToggle: false, showBundleArchive: false },
         ({ showPinnedToggle, showBundleArchive }) => {
-            html.classList.toggle(InboxyClasses.HIDE_PINNED_TOGGLE, !showPinnedToggle);
-            html.classList.toggle(InboxyClasses.HIDE_BUNDLE_ARCHIVE, !showBundleArchive);
+            html.classList.toggle(InbundlyClasses.HIDE_PINNED_TOGGLE, !showPinnedToggle);
+            html.classList.toggle(InbundlyClasses.HIDE_BUNDLE_ARCHIVE, !showBundleArchive);
         });
 }
 
@@ -137,10 +137,10 @@ document.addEventListener('mousedown', e => {
     {
         handleFreshPage(e);
     }
-    else if (e.target.matches(`.${InboxyClasses.VIEW_ALL_LINK}`) ||
-        e.target.matches(`.${InboxyClasses.VIEW_ALL_LINK} *`) || 
-        e.target.matches(`.${InboxyClasses.BUNDLED_MESSAGE}`) ||
-        e.target.matches(`.${InboxyClasses.BUNDLED_MESSAGE} *`)) 
+    else if (e.target.matches(`.${InbundlyClasses.VIEW_ALL_LINK}`) ||
+        e.target.matches(`.${InbundlyClasses.VIEW_ALL_LINK} *`) || 
+        e.target.matches(`.${InbundlyClasses.BUNDLED_MESSAGE}`) ||
+        e.target.matches(`.${InbundlyClasses.BUNDLED_MESSAGE} *`)) 
     {
         handleBundleInteraction(e);
     }
@@ -174,7 +174,7 @@ function handleContentLoaded() {
 
 function tryBundling(i, bundleCurrentPage) {
     if (i > 100) {
-        throw new Error('inboxy was unable to bundle messages. To try again, refresh the page.')
+        throw new Error('Inbundly was unable to bundle messages. To try again, refresh the page.')
     }
 
     if (!bundleCurrentPage) {
@@ -227,7 +227,7 @@ function startObservers() {
 
 /**
  * Trigger Gmail's own inbox refresh, which rebuilds the message list and causes
- * inboxy to re-bundle. Used after custom bundle membership changes.
+ * Inbundly to re-bundle. Used after custom bundle membership changes.
  */
 function refreshInbox() {
     const refresh = document.querySelector(Selectors.REFRESH);

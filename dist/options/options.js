@@ -218,7 +218,7 @@ function selectTab(tabIndex, subtitle) {
         tabLinks[i].style.fontWeight = i === tabIndex ? '700' : '';
     }
 
-    document.querySelector('title').innerText = `inboxy - ${subtitle}`;
+    document.querySelector('title').innerText = `Inbundly - ${subtitle}`;
 }
 
 document.querySelectorAll('.nav-links li').forEach((e, i) => {

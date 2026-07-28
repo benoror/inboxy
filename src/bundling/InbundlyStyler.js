@@ -21,9 +21,9 @@ import {
 } from '../util/Constants';
 
 /**
- * Applies inboxy styling.
+ * Applies inbundly styling.
  */
-class InboxyStyler {
+class InbundlyStyler {
     constructor(bundledMail) {
         this.bundledMail = bundledMail;
     }
@@ -94,4 +94,4 @@ class InboxyStyler {
     }
 }
 
-export default InboxyStyler;
+export default InbundlyStyler;

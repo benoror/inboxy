@@ -40,7 +40,7 @@ const DomUtils = {
 
     /**
      * Read Gmail's stable thread id for a message row, or null if absent
-     * (e.g. inboxy's own injected bundle rows carry no thread id). This id is
+     * (e.g. Inbundly's own injected bundle rows carry no thread id). This id is
      * durable across reloads, so it's used to persist custom bundle membership.
      */
     getThreadId: function(message) {

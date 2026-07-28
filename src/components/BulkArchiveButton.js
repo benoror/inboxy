@@ -18,7 +18,7 @@
 import DomUtils from '../util/DomUtils';
 import {
     GmailClasses,
-    InboxyClasses,
+    InbundlyClasses,
     Selectors,
 } from '../util/Constants';
 

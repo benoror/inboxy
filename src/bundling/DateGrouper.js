@@ -20,7 +20,7 @@ import DateDivider from '../components/DateDivider';
 import PinnedMessageListWatcher from '../handlers/PinnedMessageListWatcher';
 
 import { 
-    InboxyClasses,
+    InbundlyClasses,
     Selectors, 
     TableBodySelectors,
     Element,
@@ -63,7 +63,7 @@ class DateGrouper {
     _refreshDateDividers(messageList) {
         const tableBody = messageList.querySelector(Selectors.TABLE_BODY);
 
-        document.querySelector('html').classList.add(InboxyClasses.INBOXY);
+        document.querySelector('html').classList.add(InbundlyClasses.INBUNDLY);
         tableBody.classList.add('flex-table-body');
 
         // Remove all pre-existing date rows
