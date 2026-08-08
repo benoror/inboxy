@@ -10,6 +10,8 @@ independent of upstream's versioning. The format is based on
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-08-08
+
 ### Changed
 - **All options sync live across devices.** Settings were already stored in
   `chrome.storage.sync` (and Firefox Sync via the same API); Gmail tabs and the
@@ -24,6 +26,8 @@ independent of upstream's versioning. The format is based on
   refresh. Observers now start as soon as Gmail's main UI exists, the fatal throw
   is gone, and bundling soft-retries when the list appears late
   (`src/content.js`, `src/util/CoalescedRetry.js`).
+
+[2.1.1]: https://github.com/benoror/inbundly/releases/tag/v2.1.1
 
 ## [2.1.0] - 2026-07-27
 
