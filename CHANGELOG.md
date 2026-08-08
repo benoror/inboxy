@@ -17,6 +17,14 @@ independent of upstream's versioning. The format is based on
   feature toggles, and custom bundles — instead of only picking them up after a
   reload. Defaults/key groups live in `src/util/Options.js`.
 
+### Fixed
+- **Inbox sometimes left unbundled after navigation.** `tryBundling` used to throw
+  after ~5s if Gmail's message list wasn't painted yet, which also skipped starting
+  the navigation observers — so returning to Inbox never recovered without a full
+  refresh. Observers now start as soon as Gmail's main UI exists, the fatal throw
+  is gone, and bundling soft-retries when the list appears late
+  (`src/content.js`, `src/util/CoalescedRetry.js`).
+
 ## [2.1.0] - 2026-07-27
 
 ### Added
