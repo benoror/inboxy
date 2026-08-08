@@ -36,6 +36,7 @@ import {
     InboxyClasses,
     Selectors,
 } from './util/Constants';
+import { createCoalescedRetry } from './util/CoalescedRetry';
 import { 
     supportsBundling,
     isStarredPage,
@@ -83,17 +84,55 @@ function applyUiOptions({ showPinnedToggle, showBundleArchive } = {}) {
 }
 
 const RETRY_TIMEOUT_MS = 50;
+// How long to poll for Gmail's role="main" before slowing down (~10s of fast polls).
+const MAX_FAST_MAIN_ATTEMPTS = 200;
+// Soft retries when the inbox URL is active but the message list isn't painted yet.
+const MAX_BUNDLE_RETRIES = 100;
 
+let observersStarted = false;
 let isFreshPage = false;
 const handleFreshPage = e => isFreshPage = true;
 
 let interactedWithBundle = false;
 const handleBundleInteraction = e => interactedWithBundle = true;
+
+/**
+ * Call bundler.bundleMessages; if the message list isn't in the DOM yet
+ * (common when navigating back to Inbox before Gmail finishes painting),
+ * schedule coalesced retries instead of giving up.
+ */
+function bundleOrRetry(reopenRecentBundle) {
+    if (!supportsBundling(window.location.href)) {
+        bundleRetry.reset();
+        return { foundMessageList: true, skipped: true };
+    }
+
+    const debugInfo = bundler.bundleMessages(reopenRecentBundle);
+    if (debugInfo.foundMessageList) {
+        bundleRetry.reset();
+        return debugInfo;
+    }
+
+    // Remember the reopen flag from the latest caller; retries use this.
+    pendingReopenRecentBundle = reopenRecentBundle;
+    // A new caller gets a fresh retry budget unless a wave is already in flight
+    // (in which case we just coalesce onto that pending timer).
+    if (!bundleRetry.pending) {
+        bundleRetry.reset();
+    }
+    const scheduled = bundleRetry.schedule(MAX_BUNDLE_RETRIES);
+    if (!scheduled) {
+        logDebugMessage(
+            'Message list still missing after retries; waiting for navigation observers');
+    }
+    return debugInfo;
+}
+
 const rebundle = () => {
     if (!interactedWithBundle || isFreshPage) {
         bundleToggler.closeAllBundles();
     }
-    bundler.bundleMessages(true);
+    bundleOrRetry(true);
 
     isFreshPage = false;
     interactedWithBundle = false;
@@ -101,7 +140,7 @@ const rebundle = () => {
 const handleGmailRerender = () => {
     if (supportsBundling(window.location.href)) {
         const reopenRecentBundle = !isFreshPage;
-        bundler.bundleMessages(reopenRecentBundle);
+        bundleOrRetry(reopenRecentBundle);
         starHandler.scrollIfNecessary();
         
         isFreshPage = false;
@@ -118,6 +157,24 @@ const selectionBundleControl = new SelectionBundleControl(customBundles);
 const bundler = new Bundler(bundleToggler, bundledMail, messageListWatcher, selectiveBundling);
 const starHandler = new StarHandler(bundledMail, selectiveBundling);
 const dateGrouper = new DateGrouper();
+
+let pendingReopenRecentBundle = false;
+const bundleRetry = createCoalescedRetry(() => {
+    if (!supportsBundling(window.location.href)) {
+        bundleRetry.reset();
+        return;
+    }
+    const debugInfo = bundler.bundleMessages(pendingReopenRecentBundle);
+    if (debugInfo.foundMessageList) {
+        logDebugMessage(`Bundled after retry: ${JSON.stringify(debugInfo)}`);
+        bundleRetry.reset();
+        starHandler.scrollIfNecessary();
+    }
+    else if (!bundleRetry.schedule(MAX_BUNDLE_RETRIES)) {
+        logDebugMessage(
+            'Message list still missing after retries; waiting for navigation observers');
+    }
+}, RETRY_TIMEOUT_MS);
 
 // 
 // Observers for handling navigation, rerenders by Gmail, etc.
@@ -210,53 +267,55 @@ chrome.storage.onChanged.addListener((changes, area) => {
 
 function handleContentLoaded() {
     logDebugMessage('Handle content loaded event');
-    const bundleCurrentPage = supportsBundling(window.location.href);
-    logDebugMessage(`Url: ${window.location.href}, page supports bundling: ${bundleCurrentPage}`);
-    tryBundling(0, bundleCurrentPage);
+    logDebugMessage(
+        `Url: ${window.location.href}, page supports bundling: ${supportsBundling(window.location.href)}`);
+    tryStart(0);
 }
 
-function tryBundling(i, bundleCurrentPage) {
-    if (i > 100) {
-        throw new Error('inboxy was unable to bundle messages. To try again, refresh the page.')
+/**
+ * Wait for Gmail's main UI, start navigation observers as soon as it exists,
+ * then attempt to bundle. Never throws — a slow Inbox paint must not disable
+ * the extension for the rest of the tab's life.
+ */
+function tryStart(i) {
+    if (!ensureObserversStarted()) {
+        if (i === MAX_FAST_MAIN_ATTEMPTS) {
+            logDebugMessage(
+                'Gmail main UI not ready yet; continuing to wait (observers not started)');
+        }
+        const delay = i < MAX_FAST_MAIN_ATTEMPTS ? RETRY_TIMEOUT_MS : 500;
+        setTimeout(() => tryStart(i + 1), delay);
+        return;
     }
 
-    if (!bundleCurrentPage) {
-        // Attach observers so that bundling will occur later when it needs to
-        const main = document.querySelector(Selectors.MAIN);
-        if (!main) {
-            // Try again later
-            setTimeout(() => tryBundling(i + 1, bundleCurrentPage), RETRY_TIMEOUT_MS);
-        }
-        else {
-            logDebugMessage('Start observers');
-
-            addPinnedToggle(); 
-            startObservers();
-
-            if (isStarredPage(window.location.href)) {
-                dateGrouper.refreshDateDividers();
-            }
-        }
+    if (supportsBundling(window.location.href)) {
+        logDebugMessage('Bundle messages');
+        const debugInfo = bundleOrRetry(false);
+        logDebugMessage(JSON.stringify(debugInfo));
     }
-    else {
-        // Bundle messages on the current page
-        const possibleMessageLists = document.querySelectorAll(Selectors.POSSIBLE_MESSAGE_LISTS);;
-        const tableBody = possibleMessageLists.length 
-            ? possibleMessageLists.item(0).querySelector(Selectors.TABLE_BODY)
-            : null;
-        if (!tableBody) {
-            // Try again later
-            setTimeout(() => tryBundling(i + 1, bundleCurrentPage), RETRY_TIMEOUT_MS);
-        }
-        else {
-            logDebugMessage('Bundle messages');
-
-            const debugInfo = bundler.bundleMessages(false);
-            logDebugMessage(JSON.stringify(debugInfo));
-            addPinnedToggle();
-            startObservers();
-        }
+    else if (isStarredPage(window.location.href)) {
+        dateGrouper.refreshDateDividers();
     }
+}
+
+/**
+ * Attach observers once Gmail's role="main" is present. Returns false until then.
+ * Starting observers independently of the message list means navigating back to
+ * Inbox can still trigger rebundling even if the first bundle attempt was early.
+ */
+function ensureObserversStarted() {
+    if (observersStarted) {
+        return true;
+    }
+    const main = document.querySelector(Selectors.MAIN);
+    if (!main) {
+        return false;
+    }
+    logDebugMessage('Start observers');
+    addPinnedToggle();
+    startObservers();
+    observersStarted = true;
+    return true;
 }
 
 function startObservers() {
@@ -285,6 +344,10 @@ function refreshInbox() {
 }
 
 function addPinnedToggle() {
-    const searchForm = document.querySelector(Selectors.SEARCH_FORM).parentNode;
-    searchForm.appendChild((new PinnedToggle()).create());
+    const searchForm = document.querySelector(Selectors.SEARCH_FORM);
+    if (!searchForm || !searchForm.parentNode) {
+        logDebugMessage('Search form not ready; skipping pinned toggle for now');
+        return;
+    }
+    searchForm.parentNode.appendChild((new PinnedToggle()).create());
 }
