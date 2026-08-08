@@ -33,17 +33,40 @@ class SelectiveBundling {
      *   label-based grouping.
      */
     constructor(customBundles = null) {
-        const self = this;
         this.customBundles = customBundles;
+        // Defaults mirror OPTION_DEFAULTS / the options page; sync overlay follows.
+        this.exclude = true;
+        this.labels = [];
+        this.combineLabels = true;
         this.priorityRules = [];
         chrome.storage.sync.get(
-            ['exclude', 'labels', 'combineLabels', 'priorityBundles'],
-            ({ exclude = true, labels = [], combineLabels = true, priorityBundles = [] }) => {
-                self.exclude = exclude;
-                self.labels = labels.map(s => s.trim()).filter(Boolean);
-                self.combineLabels = combineLabels;
-                self.priorityRules = parsePriorityRules(priorityBundles);
-            });
+            {
+                exclude: true,
+                labels: [],
+                combineLabels: true,
+                priorityBundles: [],
+            },
+            options => this.applyOptions(options));
+    }
+
+    /**
+     * Update bundling rules from chrome.storage.sync values (initial load or
+     * a cross-device sync). Only keys present on `options` are applied; omitted
+     * keys keep their current values.
+     */
+    applyOptions(options = {}) {
+        if ('exclude' in options) {
+            this.exclude = !!options.exclude;
+        }
+        if ('labels' in options) {
+            this.labels = (options.labels || []).map(s => s.trim()).filter(Boolean);
+        }
+        if ('combineLabels' in options) {
+            this.combineLabels = !!options.combineLabels;
+        }
+        if ('priorityBundles' in options) {
+            this.priorityRules = parsePriorityRules(options.priorityBundles || []);
+        }
     }
 
     /**
