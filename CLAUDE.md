@@ -103,6 +103,11 @@ Flow for landing a feature branch and cutting a release:
 ## Notes
 
 - `src/content.js` has a `DEBUG` flag that logs `inboxy-debug:` messages to the console.
+- **Bootstrapping.** `content.js` starts navigation observers as soon as Gmail's
+  `role="main"` exists, then attempts to bundle. If the message list isn't painted
+  yet (common when navigating back to Inbox), `bundleOrRetry` soft-retries via
+  `util/CoalescedRetry.js` instead of throwing. Do not reintroduce a fatal timeout
+  that skips `startObservers()` — that leaves the tab permanently unbundled.
 - Gmail ships no stable API; the extension depends on DOM selectors in
   `src/util/Constants.js`. Gmail markup changes are the usual cause of breakage.
 - **Options storage.** Every Options-page setting and custom bundles live in
