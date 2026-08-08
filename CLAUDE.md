@@ -105,14 +105,25 @@ Flow for landing a feature branch and cutting a release:
 - `src/content.js` has a `DEBUG` flag that logs `inboxy-debug:` messages to the console.
 - Gmail ships no stable API; the extension depends on DOM selectors in
   `src/util/Constants.js`. Gmail markup changes are the usual cause of breakage.
+- **Options storage.** Every Options-page setting and custom bundles live in
+  `chrome.storage.sync` (Firefox Sync via the same API). Key names and defaults
+  are centralized in `src/util/Options.js` (`OPTION_DEFAULTS`,
+  `BUNDLING_OPTION_KEYS`, `UI_OPTION_KEYS`). The options page (`dist/options/`)
+  is plain JS outside the webpack bundle, so it duplicates the key list when
+  saving/restoring — keep them in sync when adding an option.
+- **Live sync.** `content.js` listens to `chrome.storage.onChanged` for the
+  sync area. UI-only keys (`showPinnedToggle`, `showBundleArchive`) toggle CSS
+  classes on `<html>`; bundling keys call `applyOptions` on `SelectiveBundling`,
+  `Bundler`, and `DateGrouper`, then refresh Gmail so the list rebundles.
+  Custom-bundle membership uses the same listener via
+  `CustomBundles.applyStoredValue`. The options page also re-reads the form
+  when sync values change remotely.
 - **Custom bundles** (ad-hoc groupings with no Gmail label) are keyed by Gmail's
   stable `data-legacy-thread-id` (read via `DomUtils.getThreadId`) and persisted
   in `chrome.storage.sync` by `containers/CustomBundles.js`. Their bundle key is
   the user's name prefixed with `0x1E` (`util/CustomBundleKey.js`) so it flows
   through the label-keyed pipeline without colliding with a real label or a
   combined-label (`0x1F`) key. `SelectiveBundling` checks custom membership first
-  (custom wins over priority rules and labels). Membership changes trigger a
-  Gmail refresh (via `chrome.storage.onChanged` in `content.js`) so bundling
-  re-runs; this same path applies changes synced from other devices. `options/`
-  reads/writes the same storage key directly for management.
+  (custom wins over priority rules and labels). `options/` reads/writes the same
+  storage key directly for management.
 - Versioning, tags, and releases are covered under **Releasing** above.
