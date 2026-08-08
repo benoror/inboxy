@@ -56,7 +56,7 @@ function saveOptions() {
     });
 }
 
-function restoreOptions() {
+function restoreOptionsForm() {
     chrome.storage.sync.get({
         exclude: true,
         labels: [],
@@ -97,19 +97,12 @@ function restoreOptions() {
         document.getElementById('show-bundle-archive-checkbox').checked = items.showBundleArchive;
 
     });
-
-    renderCustomBundles();
 }
 
-// Keep the custom-bundles list fresh if a bundle is created or changed in Gmail
-// (or synced from another device) while the options page is open.
-chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync' && changes[CUSTOM_BUNDLES_KEY]) {
-        renderCustomBundles();
-    }
-});
-document.getElementById('save-button').addEventListener('click', saveOptions);
-
+function restoreOptions() {
+    restoreOptionsForm();
+    renderCustomBundles();
+}
 
 //
 // Custom bundles management
@@ -118,8 +111,33 @@ document.getElementById('save-button').addEventListener('click', saveOptions);
 // Here we only list them and let the user rename or delete them. We read and
 // write chrome.storage.sync directly, matching the versioned shape the content
 // script's CustomBundles model persists: { v: 1, bundles: { name: [threadId] } }.
+// All options (including these) sync across Chrome / Firefox profiles via
+// chrome.storage.sync.
 
 const CUSTOM_BUNDLES_KEY = 'customBundles';
+
+// Refresh the form / custom-bundles list when values change in Gmail or sync
+// in from another signed-in Chrome / Firefox profile while this page is open.
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'sync') {
+        return;
+    }
+    if (changes[CUSTOM_BUNDLES_KEY]) {
+        renderCustomBundles();
+    }
+    // Any of the Save-button options — re-read the whole form so a remote
+    // sync doesn't leave stale checkboxes next to newer synced values.
+    const optionKeys = [
+        'exclude', 'labels', 'groupMessagesByDate', 'combineLabels',
+        'priorityBundles', 'skipSingleItemBundles', 'colorBundlesByLabel',
+        'bundleColorStyle', 'matchStylusCatppuccin', 'showPinnedToggle',
+        'showBundleArchive',
+    ];
+    if (optionKeys.some(key => Object.prototype.hasOwnProperty.call(changes, key))) {
+        restoreOptionsForm();
+    }
+});
+document.getElementById('save-button').addEventListener('click', saveOptions);
 
 function readCustomBundles(cb) {
     chrome.storage.sync.get({ [CUSTOM_BUNDLES_KEY]: null }, result => {
