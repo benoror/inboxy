@@ -53,23 +53,52 @@ class Bundler {
         this.messageSelectHandler = new MessageSelectHandler(bundledMail, selectiveBundling);
         this.inboxyStyler = new InboxyStyler(bundledMail);
         this.quickSelectHandler = new QuickSelectHandler();
+        // Defaults mirror OPTION_DEFAULTS / the options page; sync overlay follows.
+        this.groupMessagesByDate = true;
+        this.colorBundlesByLabel = true;
+        this.bundleColorStyle = 'background';
+        this.matchStylusCatppuccin = false;
+        this.skipSingleItemBundles = true;
         chrome.storage.sync.get(
-            ['groupMessagesByDate', 'colorBundlesByLabel', 'bundleColorStyle', 'matchStylusCatppuccin', 'skipSingleItemBundles'],
-            ({
-                groupMessagesByDate = true,
-                colorBundlesByLabel = true,
-                bundleColorStyle = 'background',
-                matchStylusCatppuccin = false,
-                skipSingleItemBundles = true,
-            }) => {
-                this.groupMessagesByDate = groupMessagesByDate;
-                this.colorBundlesByLabel = colorBundlesByLabel;
-                this.matchStylusCatppuccin = matchStylusCatppuccin;
-                this.skipSingleItemBundles = skipSingleItemBundles;
-                document.querySelector('html').classList.toggle(
-                    InboxyClasses.LABEL_COLOR_ACCENT,
-                    colorBundlesByLabel && bundleColorStyle === 'accent');
-            });
+            {
+                groupMessagesByDate: true,
+                colorBundlesByLabel: true,
+                bundleColorStyle: 'background',
+                matchStylusCatppuccin: false,
+                skipSingleItemBundles: true,
+            },
+            options => this.applyOptions(options));
+    }
+
+    /**
+     * Update bundling/display options from chrome.storage.sync (initial load or
+     * a cross-device sync). Only keys present on `options` are applied.
+     */
+    applyOptions(options = {}) {
+        if ('groupMessagesByDate' in options) {
+            this.groupMessagesByDate = !!options.groupMessagesByDate;
+        }
+        if ('colorBundlesByLabel' in options) {
+            this.colorBundlesByLabel = !!options.colorBundlesByLabel;
+        }
+        if ('bundleColorStyle' in options) {
+            this.bundleColorStyle = options.bundleColorStyle === 'accent'
+                ? 'accent'
+                : 'background';
+        }
+        if ('matchStylusCatppuccin' in options) {
+            this.matchStylusCatppuccin = !!options.matchStylusCatppuccin;
+        }
+        if ('skipSingleItemBundles' in options) {
+            this.skipSingleItemBundles = !!options.skipSingleItemBundles;
+        }
+
+        const html = document.querySelector('html');
+        if (html) {
+            html.classList.toggle(
+                InboxyClasses.LABEL_COLOR_ACCENT,
+                this.colorBundlesByLabel && this.bundleColorStyle === 'accent');
+        }
     }
 
     /**

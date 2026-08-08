@@ -8,6 +8,15 @@ independent of upstream's versioning. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **All options sync live across devices.** Settings were already stored in
+  `chrome.storage.sync` (and Firefox Sync via the same API); Gmail tabs and the
+  options page now apply remote changes immediately — bundling rules, colors,
+  feature toggles, and custom bundles — instead of only picking them up after a
+  reload. Defaults/key groups live in `src/util/Options.js`.
+
 ## [2.1.0] - 2026-07-27
 
 ### Added

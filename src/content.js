@@ -40,6 +40,12 @@ import {
     supportsBundling,
     isStarredPage,
 } from './util/MessagePageUtils';
+import {
+    BUNDLING_OPTION_KEYS,
+    UI_OPTION_KEYS,
+    changesInclude,
+    optionsFromChanges,
+} from './util/Options';
 
 const DEBUG = true;
 const logDebugMessage = message => {
@@ -54,13 +60,26 @@ if (html) {
     html.classList.add(InboxyClasses.INBOXY);
 
     // The pinned-messages toggle and bulk-archive button are hidden by default;
-    // opt in to them from the options page.
+    // opt in to them from the options page. Values sync across devices.
     chrome.storage.sync.get(
         { showPinnedToggle: false, showBundleArchive: false },
-        ({ showPinnedToggle, showBundleArchive }) => {
-            html.classList.toggle(InboxyClasses.HIDE_PINNED_TOGGLE, !showPinnedToggle);
-            html.classList.toggle(InboxyClasses.HIDE_BUNDLE_ARCHIVE, !showBundleArchive);
-        });
+        options => applyUiOptions(options));
+}
+
+/**
+ * Toggle injected UI chrome from showPinnedToggle / showBundleArchive options.
+ */
+function applyUiOptions({ showPinnedToggle, showBundleArchive } = {}) {
+    const htmlEl = document.querySelector('html');
+    if (!htmlEl) {
+        return;
+    }
+    if (showPinnedToggle !== undefined) {
+        htmlEl.classList.toggle(InboxyClasses.HIDE_PINNED_TOGGLE, !showPinnedToggle);
+    }
+    if (showBundleArchive !== undefined) {
+        htmlEl.classList.toggle(InboxyClasses.HIDE_BUNDLE_ARCHIVE, !showBundleArchive);
+    }
 }
 
 const RETRY_TIMEOUT_MS = 50;
@@ -146,15 +165,40 @@ document.addEventListener('mousedown', e => {
 });
 
 
-// Re-bundle when custom bundles change — whether from this tab's own edits, or
-// synced in from another signed-in Chrome instance. Refreshing lets Gmail
-// rebuild the message list, which re-runs bundling with the new membership.
+// Apply option / custom-bundle changes from this browser or another device
+// signed into the same Chrome / Firefox account (chrome.storage.sync).
 chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync' && changes[CUSTOM_BUNDLES_KEY]) {
+    if (area !== 'sync') {
+        return;
+    }
+
+    let needsRefresh = false;
+
+    if (changes[CUSTOM_BUNDLES_KEY]) {
         customBundles.applyStoredValue(changes[CUSTOM_BUNDLES_KEY].newValue);
         selectionBundleControl.update();
+        needsRefresh = true;
+    }
+
+    if (changesInclude(changes, UI_OPTION_KEYS)) {
+        applyUiOptions(optionsFromChanges(changes, UI_OPTION_KEYS));
+    }
+
+    if (changesInclude(changes, BUNDLING_OPTION_KEYS)) {
+        const bundlingOptions = optionsFromChanges(changes, BUNDLING_OPTION_KEYS);
+        selectiveBundling.applyOptions(bundlingOptions);
+        bundler.applyOptions(bundlingOptions);
+        dateGrouper.applyOptions(bundlingOptions);
+        needsRefresh = true;
+    }
+
+    if (needsRefresh) {
         if (supportsBundling(window.location.href)) {
             refreshInbox();
+        }
+        else if (isStarredPage(window.location.href) &&
+            changesInclude(changes, ['groupMessagesByDate'])) {
+            dateGrouper.refreshDateDividers();
         }
     }
 });
@@ -226,7 +270,8 @@ function startObservers() {
 
 /**
  * Trigger Gmail's own inbox refresh, which rebuilds the message list and causes
- * inboxy to re-bundle. Used after custom bundle membership changes.
+ * inboxy to re-bundle. Used after custom-bundle membership or bundling-option
+ * changes (including those synced from another device).
  */
 function refreshInbox() {
     const refresh = document.querySelector(Selectors.REFRESH);

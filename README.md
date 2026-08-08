@@ -23,8 +23,11 @@ your inbox.
 * Custom bundles: select any messages in Gmail and click the floating
   "Bundle selected" button to group them on the fly — no Gmail label needed.
   Custom bundles override label-based grouping, stick across reloads, and sync
-  to your other signed-in Chrome browsers. Manage or delete them under
+  with all other options to your other browsers signed into the same Chrome or
+  Firefox account (`chrome.storage.sync`). Manage or delete them under
   Options → Custom bundles
+* All Options page settings sync across devices the same way; a change on one
+  browser updates Gmail tabs on the others without reloading the extension
 * Single-item bundles are skipped by default, shown as regular messages
 * Archive all bundled messages on the current page quickly
 * Star a message to pin it outside of its bundle

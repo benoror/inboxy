@@ -106,3 +106,22 @@ test('a message not in any custom bundle falls through to label grouping', () =>
     const bundling = makeBundling({ exclude: true, labels: [] }, customBundles);
     expect(relevantLabels(bundling, ['Work'])).toEqual(['Work']);
 });
+
+//
+// applyOptions — live updates from chrome.storage.sync (incl. other devices)
+//
+
+test('applyOptions updates include/exclude rules without reconstructing', () => {
+    const bundling = makeBundling({ exclude: true, labels: [] });
+    expect(relevantLabels(bundling, ['Work', 'News'])).toEqual(['Work', 'News']);
+
+    bundling.applyOptions({ exclude: false, labels: ['Work'] });
+    expect(relevantLabels(bundling, ['Work', 'News'])).toEqual(['Work']);
+});
+
+test('applyOptions leaves omitted keys alone', () => {
+    const bundling = makeBundling({ exclude: false, labels: ['Work'], combineLabels: false });
+    bundling.applyOptions({ labels: ['News'] });
+    expect(bundling.exclude).toBe(false);
+    expect(relevantLabels(bundling, ['Work', 'News'])).toEqual(['News']);
+});
